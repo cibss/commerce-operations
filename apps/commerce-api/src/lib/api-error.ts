@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 
+import { OrderDomainError } from "@/lib/orders";
 import { QuotationDomainError } from "@/lib/quotations";
 
 export function createApiErrorResponse(error: unknown) {
-  if (error instanceof QuotationDomainError) {
+  if (
+    error instanceof QuotationDomainError ||
+    error instanceof OrderDomainError
+  ) {
     return NextResponse.json(
       {
         error: {
