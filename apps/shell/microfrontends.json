@@ -1,0 +1,39 @@
+{
+  "$schema": "https://openapi.vercel.sh/microfrontends.json",
+  "applications": {
+    "commerce-operations-shell": {
+      "packageName": "@commerce/shell",
+      "development": {
+        "fallback": "http://localhost:3000",
+        "local": 3000
+      }
+    },
+    "commerce-operations-quotations": {
+      "packageName": "@commerce/quotations",
+      "routing": [
+        {
+          "group": "quotations",
+          "paths": ["/quotations", "/quotations/:path*"]
+        }
+      ],
+      "development": {
+        "local": 3001
+      }
+    },
+    "commerce-operations-orders": {
+      "packageName": "@commerce/orders",
+      "routing": [
+        {
+          "group": "orders",
+          "paths": ["/orders", "/orders/:path*"]
+        }
+      ],
+      "development": {
+        "local": 3002
+      }
+    }
+  },
+  "options": {
+    "localProxyPort": 3024
+  }
+}

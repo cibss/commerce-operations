@@ -1,3 +1,7 @@
+import {
+  PrefetchCrossZoneLinks,
+  PrefetchCrossZoneLinksProvider,
+} from "@vercel/microfrontends/next/client";
 import type { Metadata } from "next";
 
 import "./globals.css";
@@ -14,7 +18,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <PrefetchCrossZoneLinksProvider>
+          {children}
+        </PrefetchCrossZoneLinksProvider>
+
+        <PrefetchCrossZoneLinks />
+      </body>
     </html>
   );
 }
