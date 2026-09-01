@@ -311,3 +311,32 @@ export function acceptQuotation(id: string): Quotation {
 export function rejectQuotation(id: string): Quotation {
   return transitionQuotation(id, "SENT", "REJECTED");
 }
+
+export function markQuotationConverted(id: string, orderId: string): Quotation {
+  const quotation = getQuotationOrThrow(id);
+
+  if (
+    quotation.status === "CONVERTED" &&
+    quotation.convertedOrderId === orderId
+  ) {
+    return cloneQuotation(quotation);
+  }
+
+  if (quotation.status !== "ACCEPTED") {
+    throw new QuotationDomainError(
+      `Quotation ${id} cannot be converted from ${quotation.status}.`,
+      409,
+    );
+  }
+
+  const updatedQuotation: Quotation = {
+    ...quotation,
+    status: "CONVERTED",
+    convertedOrderId: orderId,
+    updatedAt: new Date().toISOString(),
+  };
+
+  quotations.set(id, updatedQuotation);
+
+  return cloneQuotation(updatedQuotation);
+}

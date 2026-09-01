@@ -1,8 +1,10 @@
+import { Link as MicrofrontendLink } from "@vercel/microfrontends/next/client";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
   acceptQuotationAction,
+  convertQuotationAction,
   rejectQuotationAction,
   sendQuotationAction,
 } from "@/app/quotations/actions";
@@ -27,6 +29,7 @@ export default async function QuotationDetailPage({
   searchParams,
 }: QuotationDetailPageProps) {
   const { quotationId } = await params;
+
   const { error } = await searchParams;
 
   const quotation = await getQuotation(quotationId);
@@ -100,9 +103,25 @@ export default async function QuotationDetailPage({
           ) : null}
 
           {quotation.status === "ACCEPTED" ? (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-medium text-emerald-700">
-              Ready for order conversion
-            </div>
+            <form action={convertQuotationAction}>
+              <input type="hidden" name="quotationId" value={quotation.id} />
+
+              <button
+                type="submit"
+                className="rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+              >
+                Convert to order
+              </button>
+            </form>
+          ) : null}
+
+          {quotation.status === "CONVERTED" && quotation.convertedOrderId ? (
+            <MicrofrontendLink
+              href={`/orders/${quotation.convertedOrderId}`}
+              className="rounded-lg border border-violet-200 bg-violet-50 px-4 py-2.5 text-sm font-semibold text-violet-700 transition hover:bg-violet-100"
+            >
+              View {quotation.convertedOrderId}
+            </MicrofrontendLink>
           ) : null}
 
           {quotation.status === "REJECTED" ? (
@@ -190,6 +209,24 @@ export default async function QuotationDetailPage({
               {quotation.customerId}
             </p>
           </section>
+
+          {quotation.status === "CONVERTED" && quotation.convertedOrderId ? (
+            <section className="rounded-xl border border-violet-200 bg-violet-50 p-6">
+              <h2 className="font-semibold text-violet-950">Converted order</h2>
+
+              <p className="mt-2 text-sm leading-6 text-violet-700">
+                This quotation has completed the sales workflow and created an
+                order owned by Order Operations.
+              </p>
+
+              <MicrofrontendLink
+                href={`/orders/${quotation.convertedOrderId}`}
+                className="mt-4 inline-flex font-mono text-sm font-semibold text-violet-800 hover:underline"
+              >
+                {quotation.convertedOrderId} →
+              </MicrofrontendLink>
+            </section>
+          ) : null}
 
           <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="font-semibold text-slate-950">Summary</h2>

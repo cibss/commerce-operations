@@ -10,6 +10,11 @@ type ApiFailure = {
   };
 };
 
+export type ConvertQuotationResult = {
+  quotationId: string;
+  orderId: string;
+};
+
 export class CommerceApiError extends Error {
   statusCode: number;
 
@@ -95,4 +100,13 @@ export function rejectQuotation(quotationId: string) {
   return request<Quotation>(`/api/quotations/${quotationId}/reject`, {
     method: "POST",
   });
+}
+
+export function convertQuotation(quotationId: string) {
+  return request<ConvertQuotationResult>(
+    `/api/quotations/${quotationId}/convert`,
+    {
+      method: "POST",
+    },
+  );
 }

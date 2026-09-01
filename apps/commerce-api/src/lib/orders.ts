@@ -32,6 +32,23 @@ export type Order = {
   updatedAt: string;
 };
 
+export type CreateOrderFromQuotationInput = {
+  sourceQuotationId: string;
+  customerId: string;
+  customerName: string;
+  items: Array<{
+    sku: string;
+    name: string;
+    quantity: number;
+    unitPrice: number;
+    lineTotal: number;
+  }>;
+  subtotal: number;
+  discount: number;
+  total: number;
+  currency: Currency;
+};
+
 export class OrderDomainError extends Error {
   statusCode: number;
 
@@ -127,6 +144,17 @@ const orders = new Map<string, Order>(
   seedOrders.map((order) => [order.id, order]),
 );
 
+const orderIdBySourceQuotationId = new Map<string, string>();
+
+for (const order of seedOrders) {
+  if (order.sourceQuotationId) {
+    orderIdBySourceQuotationId.set(order.sourceQuotationId, order.id);
+  }
+}
+
+let orderSequence = 182;
+let orderItemSequence = 5;
+
 function cloneOrder(order: Order): Order {
   return structuredClone(order);
 }
@@ -139,6 +167,24 @@ function getOrderOrThrow(id: string): Order {
   }
 
   return order;
+}
+
+function generateOrderId() {
+  const year = new Date().getFullYear();
+
+  const id = `ORD-${year}-${String(orderSequence).padStart(4, "0")}`;
+
+  orderSequence += 1;
+
+  return id;
+}
+
+function generateOrderItemId() {
+  const id = `ORDER-ITEM-${String(orderItemSequence).padStart(3, "0")}`;
+
+  orderItemSequence += 1;
+
+  return id;
 }
 
 function transitionOrder(
@@ -174,6 +220,48 @@ export function listOrders(): Order[] {
 
 export function getOrder(id: string): Order {
   return cloneOrder(getOrderOrThrow(id));
+}
+
+export function createOrderFromQuotation(
+  input: CreateOrderFromQuotationInput,
+): Order {
+  const existingOrderId = orderIdBySourceQuotationId.get(
+    input.sourceQuotationId,
+  );
+
+  if (existingOrderId) {
+    return getOrder(existingOrderId);
+  }
+
+  const timestamp = new Date().toISOString();
+
+  const order: Order = {
+    id: generateOrderId(),
+    sourceQuotationId: input.sourceQuotationId,
+    customerId: input.customerId,
+    customerName: input.customerName,
+    items: input.items.map((item) => ({
+      id: generateOrderItemId(),
+      sku: item.sku,
+      name: item.name,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      lineTotal: item.lineTotal,
+    })),
+    subtotal: input.subtotal,
+    discount: input.discount,
+    total: input.total,
+    currency: input.currency,
+    status: "PENDING",
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  };
+
+  orders.set(order.id, order);
+
+  orderIdBySourceQuotationId.set(input.sourceQuotationId, order.id);
+
+  return cloneOrder(order);
 }
 
 export function confirmOrder(id: string): Order {

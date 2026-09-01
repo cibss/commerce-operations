@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import {
   acceptQuotation,
   CommerceApiError,
+  convertQuotation,
   createQuotation,
   rejectQuotation,
   sendQuotation,
@@ -31,14 +32,27 @@ function getErrorMessage(error: unknown) {
   return "An unexpected error occurred.";
 }
 
+function getCommercePlatformUrl() {
+  const url = process.env.COMMERCE_PLATFORM_URL;
+
+  if (!url) {
+    throw new Error("Missing COMMERCE_PLATFORM_URL environment variable.");
+  }
+
+  return url.replace(/\/$/, "");
+}
+
 export async function createQuotationAction(formData: FormData) {
   const customerName = getString(formData, "customerName");
 
   const sku = getString(formData, "sku");
+
   const itemName = getString(formData, "itemName");
 
   const quantity = getNumber(formData, "quantity");
+
   const unitPrice = getNumber(formData, "unitPrice");
+
   const discount = getNumber(formData, "discount");
 
   let quotationId: string;
@@ -104,4 +118,25 @@ export async function rejectQuotationAction(formData: FormData) {
   const quotationId = getString(formData, "quotationId");
 
   await runQuotationTransition(quotationId, () => rejectQuotation(quotationId));
+}
+
+export async function convertQuotationAction(formData: FormData) {
+  const quotationId = getString(formData, "quotationId");
+
+  let orderId: string;
+
+  try {
+    const result = await convertQuotation(quotationId);
+
+    orderId = result.orderId;
+  } catch (error) {
+    const message = encodeURIComponent(getErrorMessage(error));
+
+    redirect(`/quotations/${quotationId}?error=${message}`);
+  }
+
+  revalidatePath("/quotations");
+  revalidatePath(`/quotations/${quotationId}`);
+
+  redirect(`${getCommercePlatformUrl()}/orders/${orderId}`);
 }
