@@ -1,4 +1,8 @@
-import type { CreateQuotationInput, Quotation } from "@/lib/quotation";
+import type {
+  CreateQuotationInput,
+  CustomerOption,
+  Quotation,
+} from "@/lib/quotation";
 
 type ApiSuccess<T> = {
   data: T;
@@ -59,6 +63,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const body = (await response.json()) as ApiSuccess<T>;
 
   return body.data;
+}
+
+export function getCustomers() {
+  return request<CustomerOption[]>("/api/customers");
 }
 
 export function getQuotations() {

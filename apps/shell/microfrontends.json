@@ -31,6 +31,30 @@
       "development": {
         "local": 3002
       }
+    },
+    "commerce-operations-customers": {
+      "packageName": "@commerce/customers",
+      "routing": [
+        {
+          "group": "customers",
+          "paths": ["/customers", "/customers/:path*"]
+        }
+      ],
+      "development": {
+        "local": 3004
+      }
+    },
+    "commerce-operations-payments": {
+      "packageName": "@commerce/payments",
+      "routing": [
+        {
+          "group": "payments",
+          "paths": ["/payments", "/payments/:path*"]
+        }
+      ],
+      "development": {
+        "local": 3005
+      }
     }
   },
   "options": {

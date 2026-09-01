@@ -43,7 +43,7 @@ function getCommercePlatformUrl() {
 }
 
 export async function createQuotationAction(formData: FormData) {
-  const customerName = getString(formData, "customerName");
+  const customerId = getString(formData, "customerId");
 
   const sku = getString(formData, "sku");
 
@@ -59,7 +59,7 @@ export async function createQuotationAction(formData: FormData) {
 
   try {
     const quotation = await createQuotation({
-      customerName,
+      customerId,
       items: [
         {
           sku,
@@ -97,6 +97,7 @@ async function runQuotationTransition(
   }
 
   revalidatePath("/quotations");
+
   revalidatePath(`/quotations/${quotationId}`);
 
   redirect(`/quotations/${quotationId}`);
@@ -136,6 +137,7 @@ export async function convertQuotationAction(formData: FormData) {
   }
 
   revalidatePath("/quotations");
+
   revalidatePath(`/quotations/${quotationId}`);
 
   redirect(`${getCommercePlatformUrl()}/orders/${orderId}`);

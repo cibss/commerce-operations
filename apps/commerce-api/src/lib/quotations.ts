@@ -32,6 +32,7 @@ export type Quotation = {
 };
 
 export type CreateQuotationInput = {
+  customerId: string;
   customerName: string;
   items: Array<{
     sku: string;
@@ -139,7 +140,6 @@ const quotations = new Map<string, Quotation>(
 );
 
 let quotationSequence = 43;
-let customerSequence = 193;
 let itemSequence = 5;
 
 function cloneQuotation(quotation: Quotation): Quotation {
@@ -166,14 +166,6 @@ function generateQuotationId() {
   return id;
 }
 
-function generateCustomerId() {
-  const id = `CUST-${String(customerSequence).padStart(4, "0")}`;
-
-  customerSequence += 1;
-
-  return id;
-}
-
 function generateItemId() {
   const id = `ITEM-${String(itemSequence).padStart(3, "0")}`;
 
@@ -183,6 +175,10 @@ function generateItemId() {
 }
 
 function validateCreateInput(input: CreateQuotationInput) {
+  if (!input.customerId.trim()) {
+    throw new QuotationDomainError("Customer ID is required.");
+  }
+
   if (!input.customerName.trim()) {
     throw new QuotationDomainError("Customer name is required.");
   }
@@ -282,7 +278,7 @@ export function createQuotation(input: CreateQuotationInput): Quotation {
 
   const quotation: Quotation = {
     id: generateQuotationId(),
-    customerId: generateCustomerId(),
+    customerId: input.customerId.trim(),
     customerName: input.customerName.trim(),
     items,
     subtotal,

@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 
 import { createApiErrorResponse } from "@/lib/api-error";
 import {
-  createQuotation,
-  listQuotations,
-  type CreateQuotationInput,
-} from "@/lib/quotations";
+  createQuotationForCustomer,
+  type CreateQuotationForCustomerInput,
+} from "@/lib/create-quotation";
+import { listQuotations } from "@/lib/quotations";
 
 export async function GET() {
   return NextResponse.json({
@@ -15,9 +15,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const input = (await request.json()) as CreateQuotationInput;
+    const input = (await request.json()) as CreateQuotationForCustomerInput;
 
-    const quotation = createQuotation(input);
+    const quotation = createQuotationForCustomer(input);
 
     return NextResponse.json(
       {

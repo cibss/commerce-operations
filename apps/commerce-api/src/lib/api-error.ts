@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server";
 
+import { CustomerDomainError } from "@/lib/customers";
 import { OrderDomainError } from "@/lib/orders";
+import { PaymentDomainError } from "./payments";
 import { QuotationDomainError } from "@/lib/quotations";
 
 export function createApiErrorResponse(error: unknown) {
   if (
     error instanceof QuotationDomainError ||
-    error instanceof OrderDomainError
+    error instanceof OrderDomainError ||
+    error instanceof CustomerDomainError ||
+    error instanceof PaymentDomainError
   ) {
     return NextResponse.json(
       {

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { createQuotationAction } from "@/app/quotations/actions";
+import { getCustomers } from "@/lib/commerce-api";
 
 type NewQuotationPageProps = {
   searchParams: Promise<{
@@ -12,6 +13,8 @@ export default async function NewQuotationPage({
   searchParams,
 }: NewQuotationPageProps) {
   const { error } = await searchParams;
+
+  const customers = await getCustomers();
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -28,7 +31,7 @@ export default async function NewQuotationPage({
         </h1>
 
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          Create a draft quotation for a customer.
+          Create a draft quotation for an existing customer.
         </p>
       </div>
 
@@ -44,20 +47,29 @@ export default async function NewQuotationPage({
 
           <div className="mt-5">
             <label
-              htmlFor="customerName"
+              htmlFor="customerId"
               className="block text-sm font-medium text-slate-700"
             >
-              Customer name
+              Customer
             </label>
 
-            <input
-              id="customerName"
-              name="customerName"
-              type="text"
+            <select
+              id="customerId"
+              name="customerId"
               required
-              placeholder="PT Nusantara Teknologi"
-              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-500"
-            />
+              defaultValue=""
+              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none transition focus:border-slate-500"
+            >
+              <option value="" disabled>
+                Select customer
+              </option>
+
+              {customers.map((customer) => (
+                <option key={customer.id} value={customer.id}>
+                  {customer.companyName} ({customer.id})
+                </option>
+              ))}
+            </select>
           </div>
         </section>
 
@@ -68,8 +80,7 @@ export default async function NewQuotationPage({
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              Phase 2 starts with one editable line item. Multi-item editing can
-              be added without changing the quotation contract.
+              Phase 6 keeps the form intentionally focused on one line item.
             </p>
           </div>
 

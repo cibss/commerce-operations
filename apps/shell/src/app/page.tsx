@@ -6,7 +6,7 @@ const domains = [
   {
     title: "Quotations",
     description:
-      "Create commercial quotations, manage approvals, and prepare accepted quotations for order conversion.",
+      "Create commercial quotations, manage approvals, and convert accepted quotations into orders.",
     href: "/quotations",
     ownership: "Sales Operations",
   },
@@ -16,6 +16,20 @@ const domains = [
       "Process customer orders through confirmation, fulfillment, shipping, and completion.",
     href: "/orders",
     ownership: "Order Operations",
+  },
+  {
+    title: "Customers",
+    description:
+      "Manage B2B customer accounts and review activity across sales and order workflows.",
+    href: "/customers",
+    ownership: "Customer Operations",
+  },
+  {
+    title: "Payments",
+    description:
+      "Track order payments, settlement status, failures, and refunds.",
+    href: "/payments",
+    ownership: "Finance Operations",
   },
 ] as const;
 
@@ -35,8 +49,8 @@ export default function Home() {
           </h1>
 
           <p className="mt-3 leading-7 text-slate-600">
-            Manage the B2B quotation-to-order workflow across independently
-            owned commerce domains.
+            Manage a B2B quotation-to-order workflow across independently owned
+            commerce domains.
           </p>
         </div>
 
@@ -86,7 +100,7 @@ export default function Home() {
 
           <div className="mt-5 grid gap-4 sm:grid-cols-3">
             <div>
-              <p className="text-2xl font-semibold text-slate-950">3</p>
+              <p className="text-2xl font-semibold text-slate-950">5</p>
 
               <p className="mt-1 text-sm text-slate-500">
                 Frontend applications
@@ -94,7 +108,7 @@ export default function Home() {
             </div>
 
             <div>
-              <p className="text-2xl font-semibold text-slate-950">2</p>
+              <p className="text-2xl font-semibold text-slate-950">4</p>
 
               <p className="mt-1 text-sm text-slate-500">Business domains</p>
             </div>

@@ -31,8 +31,13 @@ export type Quotation = {
   updatedAt: string;
 };
 
+export type CustomerOption = {
+  id: string;
+  companyName: string;
+};
+
 export type CreateQuotationInput = {
-  customerName: string;
+  customerId: string;
   items: Array<{
     sku: string;
     name: string;

@@ -1,7 +1,7 @@
 import { Link } from "@vercel/microfrontends/next/client";
 
 type CommerceNavigationProps = {
-  activeSection: "home" | "quotations" | "orders";
+  activeSection: "home" | "quotations" | "orders" | "customers" | "payments";
 };
 
 const navigation = [
@@ -19,6 +19,16 @@ const navigation = [
     label: "Orders",
     href: "/orders",
     section: "orders",
+  },
+  {
+    label: "Customers",
+    href: "/customers",
+    section: "customers",
+  },
+  {
+    label: "Payments",
+    href: "/payments",
+    section: "payments",
   },
 ] as const;
 
