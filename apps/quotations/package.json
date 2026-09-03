@@ -10,6 +10,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@commerce/platform-ui": "0.1.0",
+    "@commerce/ui": "0.1.0",
     "@vercel/microfrontends": "2.4.0",
     "next": "16.3.2",
     "react": "19.2.8",
