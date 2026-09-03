@@ -1,3 +1,4 @@
+import { PageHeader, Panel, PanelHeader, buttonClassName } from "@commerce/ui";
 import { Link as MicrofrontendLink } from "@vercel/microfrontends/next/client";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -17,7 +18,6 @@ type PaymentDetailPageProps = {
   params: Promise<{
     paymentId: string;
   }>;
-
   searchParams: Promise<{
     error?: string;
   }>;
@@ -38,131 +38,130 @@ export default async function PaymentDetailPage({
   }
 
   return (
-    <div>
+    <>
       <Link
         href="/payments"
-        className="text-sm font-medium text-slate-600 hover:text-slate-950"
+        className="mb-5 inline-flex text-sm font-semibold text-slate-500 hover:text-indigo-600"
       >
-        ← Back to payments
+        ← Payments
       </Link>
 
-      <div className="mt-6 flex flex-col justify-between gap-5 md:flex-row md:items-start">
-        <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-mono text-2xl font-semibold text-slate-950">
-              {payment.id}
-            </h1>
+      <PageHeader
+        eyebrow="Payment detail"
+        title={payment.id}
+        description={`${payment.reference} · Updated ${formatDateTime(
+          payment.updatedAt,
+        )}`}
+        actions={
+          <>
+            {payment.status === "PENDING" ? (
+              <>
+                <form action={markPaymentFailedAction}>
+                  <input type="hidden" name="paymentId" value={payment.id} />
 
-            <PaymentStatusBadge status={payment.status} />
-          </div>
+                  <button className={buttonClassName("danger")}>
+                    Mark failed
+                  </button>
+                </form>
 
-          <p className="mt-2 text-sm text-slate-500">
-            Updated {formatDateTime(payment.updatedAt)}
-          </p>
-        </div>
+                <form action={markPaymentPaidAction}>
+                  <input type="hidden" name="paymentId" value={payment.id} />
 
-        <div className="flex flex-wrap gap-3">
-          {payment.status === "PENDING" ? (
-            <>
-              <form action={markPaymentFailedAction}>
+                  <button className={buttonClassName()}>Mark as paid</button>
+                </form>
+              </>
+            ) : null}
+
+            {payment.status === "PAID" ? (
+              <form action={refundPaymentAction}>
                 <input type="hidden" name="paymentId" value={payment.id} />
 
-                <button
-                  type="submit"
-                  className="rounded-lg border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-50"
-                >
-                  Mark failed
+                <button className={buttonClassName("secondary")}>
+                  Refund payment
                 </button>
               </form>
-
-              <form action={markPaymentPaidAction}>
-                <input type="hidden" name="paymentId" value={payment.id} />
-
-                <button
-                  type="submit"
-                  className="rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
-                >
-                  Mark paid
-                </button>
-              </form>
-            </>
-          ) : null}
-
-          {payment.status === "PAID" ? (
-            <form action={refundPaymentAction}>
-              <input type="hidden" name="paymentId" value={payment.id} />
-
-              <button
-                type="submit"
-                className="rounded-lg border border-violet-200 bg-violet-50 px-4 py-2.5 text-sm font-semibold text-violet-700 hover:bg-violet-100"
-              >
-                Refund payment
-              </button>
-            </form>
-          ) : null}
-        </div>
-      </div>
+            ) : null}
+          </>
+        }
+      >
+        <PaymentStatusBadge status={payment.status} />
+      </PageHeader>
 
       {error ? (
-        <div className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mt-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
           {error}
         </div>
       ) : null}
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
-        <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="font-semibold text-slate-950">Transaction</h2>
+      <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <Panel>
+          <PanelHeader
+            title="Transaction information"
+            description="Financial details for this order settlement."
+          />
 
-          <dl className="mt-6 grid gap-6 sm:grid-cols-2">
-            <div>
-              <dt className="text-sm text-slate-500">Amount</dt>
+          <div className="grid gap-px bg-slate-100 sm:grid-cols-2">
+            {[
+              ["Amount", formatCurrency(payment.amount, payment.currency)],
+              ["Payment method", payment.method.replaceAll("_", " ")],
+              ["Reference", payment.reference],
+              ["Created", formatDateTime(payment.createdAt)],
+              [
+                "Paid at",
+                payment.paidAt ? formatDateTime(payment.paidAt) : "—",
+              ],
+              [
+                "Refunded at",
+                payment.refundedAt ? formatDateTime(payment.refundedAt) : "—",
+              ],
+            ].map(([label, value]) => (
+              <div key={label} className="bg-white p-6">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  {label}
+                </p>
 
-              <dd className="mt-1 text-xl font-semibold text-slate-950">
-                {formatCurrency(payment.amount, payment.currency)}
-              </dd>
+                <p className="mt-2 text-sm font-semibold text-slate-900">
+                  {value}
+                </p>
+              </div>
+            ))}
+          </div>
+        </Panel>
+
+        <div className="space-y-6">
+          <Panel className="border-indigo-200 bg-gradient-to-br from-indigo-50 to-white">
+            <div className="p-6">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-indigo-500">
+                Related order
+              </p>
+
+              <p className="mt-3 text-sm leading-6 text-slate-600">
+                Operational ownership remains within the Orders microfrontend.
+              </p>
+
+              <MicrofrontendLink
+                href={`/orders/${payment.orderId}`}
+                className="mt-4 inline-flex font-mono text-sm font-bold text-indigo-600 hover:text-indigo-700"
+              >
+                {payment.orderId} →
+              </MicrofrontendLink>
             </div>
+          </Panel>
 
-            <div>
-              <dt className="text-sm text-slate-500">Method</dt>
+          <Panel>
+            <PanelHeader title="Settlement status" />
 
-              <dd className="mt-1 font-medium text-slate-900">
-                {payment.method.replaceAll("_", " ")}
-              </dd>
+            <div className="p-6">
+              <PaymentStatusBadge status={payment.status} />
+
+              <p className="mt-4 text-sm leading-6 text-slate-500">
+                Payment state is managed independently by Finance Operations and
+                cannot be modified directly by the Orders domain.
+              </p>
             </div>
-
-            <div>
-              <dt className="text-sm text-slate-500">Reference</dt>
-
-              <dd className="mt-1 font-mono text-sm text-slate-900">
-                {payment.reference}
-              </dd>
-            </div>
-
-            <div>
-              <dt className="text-sm text-slate-500">Created</dt>
-
-              <dd className="mt-1 text-sm text-slate-900">
-                {formatDateTime(payment.createdAt)}
-              </dd>
-            </div>
-          </dl>
-        </section>
-
-        <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="font-semibold text-slate-950">Related order</h2>
-
-          <p className="mt-2 text-sm text-slate-500">
-            Order ownership remains with Order Operations.
-          </p>
-
-          <MicrofrontendLink
-            href={`/orders/${payment.orderId}`}
-            className="mt-4 inline-flex font-mono text-sm font-semibold text-slate-900 hover:underline"
-          >
-            {payment.orderId} →
-          </MicrofrontendLink>
-        </section>
+          </Panel>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

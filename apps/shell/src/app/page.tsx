@@ -1,126 +1,210 @@
+import { CommerceShell } from "@commerce/platform-ui";
+import { Badge, PageHeader, Panel, PanelHeader, StatCard } from "@commerce/ui";
 import { Link } from "@vercel/microfrontends/next/client";
-
-import { CommerceNavigation } from "@/components/CommerceNavigation";
 
 const domains = [
   {
     title: "Quotations",
     description:
-      "Create commercial quotations, manage approvals, and convert accepted quotations into orders.",
+      "Build commercial proposals, manage approval states, and convert accepted quotations into operational orders.",
     href: "/quotations",
     ownership: "Sales Operations",
+    accent: "from-indigo-500 to-violet-500",
+    metric: "Sales workflow",
+    number: "01",
   },
   {
     title: "Orders",
     description:
-      "Process customer orders through confirmation, fulfillment, shipping, and completion.",
+      "Coordinate confirmation, fulfillment, shipping, and completion across the order lifecycle.",
     href: "/orders",
     ownership: "Order Operations",
+    accent: "from-blue-500 to-cyan-500",
+    metric: "Fulfillment",
+    number: "02",
   },
   {
     title: "Customers",
     description:
-      "Manage B2B customer accounts and review activity across sales and order workflows.",
+      "Maintain B2B accounts and review commercial activity across quotations and orders.",
     href: "/customers",
     ownership: "Customer Operations",
+    accent: "from-violet-500 to-fuchsia-500",
+    metric: "Account data",
+    number: "03",
   },
   {
     title: "Payments",
     description:
-      "Track order payments, settlement status, failures, and refunds.",
+      "Track settlement, payment failures, completed transactions, and refund operations.",
     href: "/payments",
     ownership: "Finance Operations",
+    accent: "from-emerald-500 to-teal-500",
+    metric: "Settlement",
+    number: "04",
   },
 ] as const;
 
+const workflow = [
+  "Quotation",
+  "Accepted",
+  "Order",
+  "Processing",
+  "Payment",
+  "Complete",
+];
+
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
-      <CommerceNavigation activeSection="home" />
+    <CommerceShell activeSection="home">
+      <PageHeader
+        eyebrow="Operations workspace"
+        title="Commerce operations"
+        description="A B2B operations platform demonstrating domain-oriented microfrontends, explicit business contracts, and independent application ownership."
+      >
+        <div className="flex flex-wrap gap-2">
+          <Badge variant="accent">Path-based microfrontends</Badge>
 
-      <div className="mx-auto max-w-7xl px-6 py-10">
-        <div className="max-w-3xl">
-          <p className="text-sm font-medium text-slate-500">
-            Commerce Operations Platform
-          </p>
+          <Badge variant="success">5 independent applications</Badge>
 
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
-            Operations overview
-          </h1>
+          <Badge variant="neutral">Next.js · Turborepo</Badge>
+        </div>
+      </PageHeader>
 
-          <p className="mt-3 leading-7 text-slate-600">
-            Manage a B2B quotation-to-order workflow across independently owned
-            commerce domains.
-          </p>
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          label="Applications"
+          value="5"
+          hint="Independently runnable"
+          tone="indigo"
+        />
+
+        <StatCard
+          label="Domains"
+          value="4"
+          hint="Business ownership"
+          tone="neutral"
+        />
+
+        <StatCard
+          label="Entry points"
+          value="1"
+          hint="Unified platform"
+          tone="emerald"
+        />
+
+        <StatCard
+          label="Hero flow"
+          value="Quote → Order"
+          hint="Cross-MFE workflow"
+          tone="amber"
+        />
+      </div>
+
+      <Panel className="mt-6">
+        <PanelHeader
+          title="Quotation-to-order workflow"
+          description="The main cross-domain business journey implemented by the platform."
+          action={<Badge variant="success">Operational</Badge>}
+        />
+
+        <div className="overflow-x-auto px-6 py-7">
+          <div className="flex min-w-[720px] items-center">
+            {workflow.map((step, index) => (
+              <div
+                key={step}
+                className={`flex ${
+                  index < workflow.length - 1 ? "flex-1" : ""
+                } items-center`}
+              >
+                <div>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-indigo-100 bg-indigo-50 text-sm font-bold text-indigo-600">
+                    {index + 1}
+                  </div>
+
+                  <p className="mt-2 text-xs font-semibold text-slate-700">
+                    {step}
+                  </p>
+                </div>
+
+                {index < workflow.length - 1 ? (
+                  <div className="mx-4 h-px flex-1 bg-gradient-to-r from-indigo-200 to-slate-200" />
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </div>
+      </Panel>
+
+      <section className="mt-8">
+        <div className="mb-4 flex items-end justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-slate-950">
+              Business domains
+            </h2>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Each domain owns a distinct operational responsibility.
+            </p>
+          </div>
         </div>
 
-        <section className="mt-10 grid gap-5 md:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-2">
           {domains.map((domain) => (
             <Link
               key={domain.href}
               href={domain.href}
-              className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-slate-300 hover:shadow"
+              className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.03),0_8px_30px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-[0_12px_40px_rgba(79,70,229,0.08)]"
             >
-              <div className="flex items-start justify-between gap-6">
-                <div>
-                  <h2 className="text-lg font-semibold text-slate-950">
-                    {domain.title}
-                  </h2>
+              <div
+                className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${domain.accent}`}
+              />
 
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
+              <div className="flex items-start justify-between gap-8">
+                <div>
+                  <span className="font-mono text-xs font-semibold text-slate-400">
+                    {domain.number}
+                  </span>
+
+                  <h3 className="mt-3 text-lg font-bold tracking-tight text-slate-950">
+                    {domain.title}
+                  </h3>
+
+                  <p className="mt-2 max-w-xl text-sm leading-6 text-slate-600">
                     {domain.description}
                   </p>
                 </div>
 
-                <span
-                  aria-hidden="true"
-                  className="text-lg text-slate-400 transition group-hover:translate-x-1 group-hover:text-slate-700"
-                >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-50 text-lg text-slate-400 transition group-hover:bg-indigo-50 group-hover:text-indigo-600">
                   →
-                </span>
+                </div>
               </div>
 
-              <div className="mt-6 border-t border-slate-100 pt-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                  Domain ownership
-                </p>
+              <div className="mt-6 flex items-center gap-6 border-t border-slate-100 pt-4">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Ownership
+                  </p>
 
-                <p className="mt-1 text-sm font-medium text-slate-700">
-                  {domain.ownership}
-                </p>
+                  <p className="mt-1 text-xs font-semibold text-slate-700">
+                    {domain.ownership}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Capability
+                  </p>
+
+                  <p className="mt-1 text-xs font-semibold text-slate-700">
+                    {domain.metric}
+                  </p>
+                </div>
               </div>
             </Link>
           ))}
-        </section>
-
-        <section className="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
-            Architecture
-          </p>
-
-          <div className="mt-5 grid gap-4 sm:grid-cols-3">
-            <div>
-              <p className="text-2xl font-semibold text-slate-950">5</p>
-
-              <p className="mt-1 text-sm text-slate-500">
-                Frontend applications
-              </p>
-            </div>
-
-            <div>
-              <p className="text-2xl font-semibold text-slate-950">4</p>
-
-              <p className="mt-1 text-sm text-slate-500">Business domains</p>
-            </div>
-
-            <div>
-              <p className="text-2xl font-semibold text-slate-950">1</p>
-
-              <p className="mt-1 text-sm text-slate-500">Unified experience</p>
-            </div>
-          </div>
-        </section>
-      </div>
-    </main>
+        </div>
+      </section>
+    </CommerceShell>
   );
 }

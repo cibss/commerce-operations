@@ -1,3 +1,12 @@
+import {
+  Badge,
+  PageHeader,
+  Panel,
+  PanelHeader,
+  ProgressSteps,
+  buttonClassName,
+  type ProgressStep,
+} from "@commerce/ui";
 import { Link as MicrofrontendLink } from "@vercel/microfrontends/next/client";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -18,11 +27,12 @@ type QuotationDetailPageProps = {
   params: Promise<{
     quotationId: string;
   }>;
-
   searchParams: Promise<{
     error?: string;
   }>;
 };
+
+const lifecycle = ["DRAFT", "SENT", "ACCEPTED", "CONVERTED"] as const;
 
 export default async function QuotationDetailPage({
   params,
@@ -38,129 +48,144 @@ export default async function QuotationDetailPage({
     notFound();
   }
 
+  const currentIndex = lifecycle.indexOf(
+    quotation.status === "REJECTED" ? "SENT" : quotation.status,
+  );
+
+  const steps: ProgressStep[] = lifecycle.map((status, index) => ({
+    label: status,
+    state:
+      quotation.status === "REJECTED" && status === "SENT"
+        ? "error"
+        : index < currentIndex
+          ? "complete"
+          : index === currentIndex
+            ? "current"
+            : "upcoming",
+  }));
+
   return (
-    <div>
+    <>
       <Link
         href="/quotations"
-        className="text-sm font-medium text-slate-600 hover:text-slate-950"
+        className="mb-5 inline-flex text-sm font-semibold text-slate-500 transition hover:text-indigo-600"
       >
-        ← Back to quotations
+        ← Quotations
       </Link>
 
-      <div className="mt-6 flex flex-col justify-between gap-5 md:flex-row md:items-start">
-        <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-mono text-2xl font-semibold tracking-tight text-slate-950">
-              {quotation.id}
-            </h1>
-
-            <QuotationStatusBadge status={quotation.status} />
-          </div>
-
-          <p className="mt-2 text-sm text-slate-500">
-            Updated {formatDateTime(quotation.updatedAt)}
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-3">
-          {quotation.status === "DRAFT" ? (
-            <form action={sendQuotationAction}>
-              <input type="hidden" name="quotationId" value={quotation.id} />
-
-              <button
-                type="submit"
-                className="rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
-              >
-                Send quotation
-              </button>
-            </form>
-          ) : null}
-
-          {quotation.status === "SENT" ? (
-            <>
-              <form action={rejectQuotationAction}>
+      <PageHeader
+        eyebrow="Quotation detail"
+        title={quotation.id}
+        description={`Commercial proposal for ${quotation.customerName}. Last updated ${formatDateTime(
+          quotation.updatedAt,
+        )}.`}
+        actions={
+          <>
+            {quotation.status === "DRAFT" ? (
+              <form action={sendQuotationAction}>
                 <input type="hidden" name="quotationId" value={quotation.id} />
 
-                <button
-                  type="submit"
-                  className="rounded-lg border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50"
-                >
-                  Reject
-                </button>
+                <button className={buttonClassName()}>Send quotation</button>
               </form>
+            ) : null}
 
-              <form action={acceptQuotationAction}>
+            {quotation.status === "SENT" ? (
+              <>
+                <form action={rejectQuotationAction}>
+                  <input
+                    type="hidden"
+                    name="quotationId"
+                    value={quotation.id}
+                  />
+
+                  <button className={buttonClassName("danger")}>Reject</button>
+                </form>
+
+                <form action={acceptQuotationAction}>
+                  <input
+                    type="hidden"
+                    name="quotationId"
+                    value={quotation.id}
+                  />
+
+                  <button className={buttonClassName()}>
+                    Accept quotation
+                  </button>
+                </form>
+              </>
+            ) : null}
+
+            {quotation.status === "ACCEPTED" ? (
+              <form action={convertQuotationAction}>
                 <input type="hidden" name="quotationId" value={quotation.id} />
 
-                <button
-                  type="submit"
-                  className="rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
-                >
-                  Accept quotation
+                <button className={buttonClassName()}>
+                  Convert to order →
                 </button>
               </form>
-            </>
-          ) : null}
+            ) : null}
 
-          {quotation.status === "ACCEPTED" ? (
-            <form action={convertQuotationAction}>
-              <input type="hidden" name="quotationId" value={quotation.id} />
-
-              <button
-                type="submit"
-                className="rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+            {quotation.status === "CONVERTED" && quotation.convertedOrderId ? (
+              <MicrofrontendLink
+                href={`/orders/${quotation.convertedOrderId}`}
+                className={buttonClassName()}
               >
-                Convert to order
-              </button>
-            </form>
-          ) : null}
-
-          {quotation.status === "CONVERTED" && quotation.convertedOrderId ? (
-            <MicrofrontendLink
-              href={`/orders/${quotation.convertedOrderId}`}
-              className="rounded-lg border border-violet-200 bg-violet-50 px-4 py-2.5 text-sm font-semibold text-violet-700 transition hover:bg-violet-100"
-            >
-              View {quotation.convertedOrderId}
-            </MicrofrontendLink>
-          ) : null}
-
-          {quotation.status === "REJECTED" ? (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700">
-              Quotation rejected
-            </div>
-          ) : null}
-        </div>
-      </div>
+                View order →
+              </MicrofrontendLink>
+            ) : null}
+          </>
+        }
+      >
+        <QuotationStatusBadge status={quotation.status} />
+      </PageHeader>
 
       {error ? (
-        <div className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mt-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
           {error}
         </div>
       ) : null}
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
-        <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 px-6 py-5">
-            <h2 className="font-semibold text-slate-950">Quotation items</h2>
-          </div>
+      <Panel className="mt-8">
+        <PanelHeader
+          title="Quotation lifecycle"
+          description="Sales workflow state and handover readiness."
+        />
+
+        <div className="overflow-x-auto px-6 py-6">
+          <ProgressSteps steps={steps} />
+
+          {quotation.status === "REJECTED" ? (
+            <div className="mt-5">
+              <Badge variant="danger">Customer rejected this quotation</Badge>
+            </div>
+          ) : null}
+        </div>
+      </Panel>
+
+      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <Panel>
+          <PanelHeader
+            title="Commercial items"
+            description={`${quotation.items.length} line item${quotation.items.length === 1 ? "" : "s"} included in this proposal.`}
+          />
 
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Item
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50/70">
+                  <th className="px-6 py-3.5 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Product
                   </th>
 
-                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Quantity
+                  <th className="px-6 py-3.5 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Qty
                   </th>
 
-                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  <th className="px-6 py-3.5 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">
                     Unit price
                   </th>
 
-                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  <th className="px-6 py-3.5 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">
                     Total
                   </th>
                 </tr>
@@ -169,25 +194,25 @@ export default async function QuotationDetailPage({
               <tbody className="divide-y divide-slate-100">
                 {quotation.items.map((item) => (
                   <tr key={item.id}>
-                    <td className="px-6 py-4">
-                      <div className="font-medium text-slate-900">
+                    <td className="px-6 py-5">
+                      <p className="text-sm font-semibold text-slate-900">
                         {item.name}
-                      </div>
+                      </p>
 
-                      <div className="mt-1 font-mono text-xs text-slate-500">
+                      <p className="mt-1 font-mono text-[11px] text-slate-400">
                         {item.sku}
-                      </div>
+                      </p>
                     </td>
 
-                    <td className="px-6 py-4 text-right text-sm text-slate-700">
+                    <td className="px-6 py-5 text-right text-sm text-slate-600">
                       {item.quantity}
                     </td>
 
-                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-slate-700">
+                    <td className="px-6 py-5 text-right text-sm text-slate-600">
                       {formatCurrency(item.unitPrice, quotation.currency)}
                     </td>
 
-                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium text-slate-900">
+                    <td className="px-6 py-5 text-right text-sm font-semibold text-slate-950">
                       {formatCurrency(item.lineTotal, quotation.currency)}
                     </td>
                   </tr>
@@ -195,72 +220,81 @@ export default async function QuotationDetailPage({
               </tbody>
             </table>
           </div>
-        </section>
+        </Panel>
 
         <div className="space-y-6">
-          <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="font-semibold text-slate-950">Customer</h2>
-
-            <p className="mt-4 font-medium text-slate-900">
-              {quotation.customerName}
-            </p>
-
-            <p className="mt-1 font-mono text-xs text-slate-500">
-              {quotation.customerId}
-            </p>
-          </section>
-
-          {quotation.status === "CONVERTED" && quotation.convertedOrderId ? (
-            <section className="rounded-xl border border-violet-200 bg-violet-50 p-6">
-              <h2 className="font-semibold text-violet-950">Converted order</h2>
-
-              <p className="mt-2 text-sm leading-6 text-violet-700">
-                This quotation has completed the sales workflow and created an
-                order owned by Order Operations.
+          <Panel>
+            <div className="p-6">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Customer
               </p>
 
-              <MicrofrontendLink
-                href={`/orders/${quotation.convertedOrderId}`}
-                className="mt-4 inline-flex font-mono text-sm font-semibold text-violet-800 hover:underline"
-              >
-                {quotation.convertedOrderId} →
-              </MicrofrontendLink>
-            </section>
+              <h3 className="mt-3 text-base font-bold text-slate-950">
+                {quotation.customerName}
+              </h3>
+
+              <p className="mt-1 font-mono text-xs text-slate-400">
+                {quotation.customerId}
+              </p>
+            </div>
+          </Panel>
+
+          {quotation.status === "CONVERTED" && quotation.convertedOrderId ? (
+            <Panel className="border-indigo-200 bg-gradient-to-br from-indigo-50 to-white">
+              <div className="p-6">
+                <Badge variant="accent">Handover complete</Badge>
+
+                <h3 className="mt-4 text-sm font-bold text-slate-950">
+                  Order created
+                </h3>
+
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Ownership has moved from Sales Operations to Order Operations.
+                </p>
+
+                <MicrofrontendLink
+                  href={`/orders/${quotation.convertedOrderId}`}
+                  className="mt-4 inline-flex font-mono text-sm font-bold text-indigo-600 hover:text-indigo-700"
+                >
+                  {quotation.convertedOrderId} →
+                </MicrofrontendLink>
+              </div>
+            </Panel>
           ) : null}
 
-          <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="font-semibold text-slate-950">Summary</h2>
+          <Panel>
+            <PanelHeader title="Financial summary" />
 
-            <dl className="mt-5 space-y-3 text-sm">
-              <div className="flex justify-between gap-4">
+            <dl className="space-y-4 p-6 text-sm">
+              <div className="flex justify-between">
                 <dt className="text-slate-500">Subtotal</dt>
 
-                <dd className="font-medium text-slate-900">
+                <dd className="font-medium text-slate-800">
                   {formatCurrency(quotation.subtotal, quotation.currency)}
                 </dd>
               </div>
 
-              <div className="flex justify-between gap-4">
+              <div className="flex justify-between">
                 <dt className="text-slate-500">Discount</dt>
 
-                <dd className="font-medium text-slate-900">
+                <dd className="font-medium text-rose-600">
                   -{formatCurrency(quotation.discount, quotation.currency)}
                 </dd>
               </div>
 
-              <div className="border-t border-slate-200 pt-3">
-                <div className="flex justify-between gap-4">
-                  <dt className="font-semibold text-slate-900">Total</dt>
+              <div className="border-t border-slate-100 pt-4">
+                <div className="flex items-end justify-between">
+                  <dt className="font-semibold text-slate-700">Total</dt>
 
-                  <dd className="font-semibold text-slate-950">
+                  <dd className="text-lg font-bold text-slate-950">
                     {formatCurrency(quotation.total, quotation.currency)}
                   </dd>
                 </div>
               </div>
             </dl>
-          </section>
+          </Panel>
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -1,1 +1,4 @@
-export { CommerceNavigation, type CommerceSection } from "./CommerceNavigation";
+export {
+  CommerceShell,
+  type CommerceSection,
+} from "./CommerceShell";

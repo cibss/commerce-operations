@@ -1,3 +1,11 @@
+import {
+  PageHeader,
+  Panel,
+  PanelHeader,
+  ProgressSteps,
+  buttonClassName,
+  type ProgressStep,
+} from "@commerce/ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -8,10 +16,9 @@ import {
   processOrderAction,
   shipOrderAction,
 } from "@/app/orders/actions";
-
+import { OrderStatusBadge } from "@/components/OrderStatusBadge";
 import { getOrder } from "@/lib/commerce-api";
 import { formatCurrency, formatDateTime } from "@/lib/order";
-import { OrderStatusBadge } from "@/components/OrderStatusBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -19,17 +26,25 @@ type OrderDetailPageProps = {
   params: Promise<{
     orderId: string;
   }>;
-
   searchParams: Promise<{
     error?: string;
   }>;
 };
+
+const lifecycle = [
+  "PENDING",
+  "CONFIRMED",
+  "PROCESSING",
+  "SHIPPED",
+  "COMPLETED",
+] as const;
 
 export default async function OrderDetailPage({
   params,
   searchParams,
 }: OrderDetailPageProps) {
   const { orderId } = await params;
+
   const { error } = await searchParams;
 
   const order = await getOrder(orderId);
@@ -38,152 +53,127 @@ export default async function OrderDetailPage({
     notFound();
   }
 
+  const currentIndex = lifecycle.indexOf(
+    order.status === "CANCELLED" ? "PENDING" : order.status,
+  );
+
+  const steps: ProgressStep[] = lifecycle.map((status, index) => ({
+    label: status,
+    state:
+      order.status === "CANCELLED" && status === "PENDING"
+        ? "error"
+        : index < currentIndex
+          ? "complete"
+          : index === currentIndex
+            ? "current"
+            : "upcoming",
+  }));
+
   return (
-    <div>
+    <>
       <Link
         href="/orders"
-        className="text-sm font-medium text-slate-600 hover:text-slate-950"
+        className="mb-5 inline-flex text-sm font-semibold text-slate-500 hover:text-indigo-600"
       >
-        ← Back to orders
+        ← Orders
       </Link>
 
-      <div className="mt-6 flex flex-col justify-between gap-5 md:flex-row md:items-start">
-        <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-mono text-2xl font-semibold tracking-tight text-slate-950">
-              {order.id}
-            </h1>
-
-            <OrderStatusBadge status={order.status} />
-          </div>
-
-          <p className="mt-2 text-sm text-slate-500">
-            Updated {formatDateTime(order.updatedAt)}
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-3">
-          {order.status === "PENDING" ? (
-            <>
+      <PageHeader
+        eyebrow="Order detail"
+        title={order.id}
+        description={`Order for ${order.customerName}. Updated ${formatDateTime(
+          order.updatedAt,
+        )}.`}
+        actions={
+          <>
+            {(order.status === "PENDING" || order.status === "CONFIRMED") && (
               <form action={cancelOrderAction}>
                 <input type="hidden" name="orderId" value={order.id} />
 
-                <button
-                  type="submit"
-                  className="rounded-lg border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50"
-                >
+                <button className={buttonClassName("danger")}>
                   Cancel order
                 </button>
               </form>
+            )}
 
+            {order.status === "PENDING" ? (
               <form action={confirmOrderAction}>
                 <input type="hidden" name="orderId" value={order.id} />
 
-                <button
-                  type="submit"
-                  className="rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
-                >
-                  Confirm order
-                </button>
+                <button className={buttonClassName()}>Confirm order</button>
               </form>
-            </>
-          ) : null}
+            ) : null}
 
-          {order.status === "CONFIRMED" ? (
-            <>
-              <form action={cancelOrderAction}>
-                <input type="hidden" name="orderId" value={order.id} />
-
-                <button
-                  type="submit"
-                  className="rounded-lg border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50"
-                >
-                  Cancel order
-                </button>
-              </form>
-
+            {order.status === "CONFIRMED" ? (
               <form action={processOrderAction}>
                 <input type="hidden" name="orderId" value={order.id} />
 
-                <button
-                  type="submit"
-                  className="rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
-                >
-                  Start processing
-                </button>
+                <button className={buttonClassName()}>Start processing</button>
               </form>
-            </>
-          ) : null}
+            ) : null}
 
-          {order.status === "PROCESSING" ? (
-            <form action={shipOrderAction}>
-              <input type="hidden" name="orderId" value={order.id} />
+            {order.status === "PROCESSING" ? (
+              <form action={shipOrderAction}>
+                <input type="hidden" name="orderId" value={order.id} />
 
-              <button
-                type="submit"
-                className="rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
-              >
-                Mark as shipped
-              </button>
-            </form>
-          ) : null}
+                <button className={buttonClassName()}>Mark shipped</button>
+              </form>
+            ) : null}
 
-          {order.status === "SHIPPED" ? (
-            <form action={completeOrderAction}>
-              <input type="hidden" name="orderId" value={order.id} />
+            {order.status === "SHIPPED" ? (
+              <form action={completeOrderAction}>
+                <input type="hidden" name="orderId" value={order.id} />
 
-              <button
-                type="submit"
-                className="rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
-              >
-                Complete order
-              </button>
-            </form>
-          ) : null}
-
-          {order.status === "COMPLETED" ? (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-medium text-emerald-700">
-              Order completed
-            </div>
-          ) : null}
-
-          {order.status === "CANCELLED" ? (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700">
-              Order cancelled
-            </div>
-          ) : null}
-        </div>
-      </div>
+                <button className={buttonClassName()}>Complete order</button>
+              </form>
+            ) : null}
+          </>
+        }
+      >
+        <OrderStatusBadge status={order.status} />
+      </PageHeader>
 
       {error ? (
-        <div className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mt-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
           {error}
         </div>
       ) : null}
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
-        <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 px-6 py-5">
-            <h2 className="font-semibold text-slate-950">Order items</h2>
-          </div>
+      <Panel className="mt-8">
+        <PanelHeader
+          title="Fulfillment lifecycle"
+          description="Operational progression after quotation conversion."
+        />
+
+        <div className="overflow-x-auto px-6 py-6">
+          <ProgressSteps steps={steps} />
+        </div>
+      </Panel>
+
+      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <Panel>
+          <PanelHeader
+            title="Order items"
+            description={`${order.items.length} line item${order.items.length === 1 ? "" : "s"} in fulfillment.`}
+          />
 
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Item
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50/70">
+                  <th className="px-6 py-3.5 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Product
                   </th>
 
-                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Quantity
+                  <th className="px-6 py-3.5 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Qty
                   </th>
 
-                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  <th className="px-6 py-3.5 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">
                     Unit price
                   </th>
 
-                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  <th className="px-6 py-3.5 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">
                     Total
                   </th>
                 </tr>
@@ -192,25 +182,25 @@ export default async function OrderDetailPage({
               <tbody className="divide-y divide-slate-100">
                 {order.items.map((item) => (
                   <tr key={item.id}>
-                    <td className="px-6 py-4">
-                      <div className="font-medium text-slate-900">
+                    <td className="px-6 py-5">
+                      <p className="text-sm font-semibold text-slate-900">
                         {item.name}
-                      </div>
+                      </p>
 
-                      <div className="mt-1 font-mono text-xs text-slate-500">
+                      <p className="mt-1 font-mono text-[11px] text-slate-400">
                         {item.sku}
-                      </div>
+                      </p>
                     </td>
 
-                    <td className="px-6 py-4 text-right text-sm text-slate-700">
+                    <td className="px-6 py-5 text-right text-sm text-slate-600">
                       {item.quantity}
                     </td>
 
-                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-slate-700">
+                    <td className="px-6 py-5 text-right text-sm text-slate-600">
                       {formatCurrency(item.unitPrice, order.currency)}
                     </td>
 
-                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium text-slate-900">
+                    <td className="px-6 py-5 text-right text-sm font-semibold text-slate-950">
                       {formatCurrency(item.lineTotal, order.currency)}
                     </td>
                   </tr>
@@ -218,64 +208,74 @@ export default async function OrderDetailPage({
               </tbody>
             </table>
           </div>
-        </section>
+        </Panel>
 
         <div className="space-y-6">
-          <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="font-semibold text-slate-950">Customer</h2>
+          <Panel>
+            <div className="p-6">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Customer
+              </p>
 
-            <p className="mt-4 font-medium text-slate-900">
-              {order.customerName}
-            </p>
+              <p className="mt-3 text-base font-bold text-slate-950">
+                {order.customerName}
+              </p>
 
-            <p className="mt-1 font-mono text-xs text-slate-500">
-              {order.customerId}
-            </p>
-          </section>
+              <p className="mt-1 font-mono text-xs text-slate-400">
+                {order.customerId}
+              </p>
+            </div>
+          </Panel>
 
-          <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="font-semibold text-slate-950">Order source</h2>
+          <Panel>
+            <div className="p-6">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Commercial source
+              </p>
 
-            <p className="mt-4 text-sm text-slate-500">Source quotation</p>
+              <p className="mt-3 font-mono text-sm font-bold text-indigo-600">
+                {order.sourceQuotationId ?? "Direct order"}
+              </p>
 
-            <p className="mt-1 font-mono text-sm font-medium text-slate-900">
-              {order.sourceQuotationId ?? "Direct order"}
-            </p>
-          </section>
+              <p className="mt-2 text-xs leading-5 text-slate-500">
+                Source document from the Sales Operations domain.
+              </p>
+            </div>
+          </Panel>
 
-          <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="font-semibold text-slate-950">Summary</h2>
+          <Panel>
+            <PanelHeader title="Order value" />
 
-            <dl className="mt-5 space-y-3 text-sm">
-              <div className="flex justify-between gap-4">
+            <dl className="space-y-4 p-6 text-sm">
+              <div className="flex justify-between">
                 <dt className="text-slate-500">Subtotal</dt>
 
-                <dd className="font-medium text-slate-900">
+                <dd className="font-medium text-slate-800">
                   {formatCurrency(order.subtotal, order.currency)}
                 </dd>
               </div>
 
-              <div className="flex justify-between gap-4">
+              <div className="flex justify-between">
                 <dt className="text-slate-500">Discount</dt>
 
-                <dd className="font-medium text-slate-900">
+                <dd className="font-medium text-rose-600">
                   -{formatCurrency(order.discount, order.currency)}
                 </dd>
               </div>
 
-              <div className="border-t border-slate-200 pt-3">
-                <div className="flex justify-between gap-4">
-                  <dt className="font-semibold text-slate-900">Total</dt>
+              <div className="border-t border-slate-100 pt-4">
+                <div className="flex justify-between">
+                  <dt className="font-semibold text-slate-700">Total</dt>
 
-                  <dd className="font-semibold text-slate-950">
+                  <dd className="text-lg font-bold text-slate-950">
                     {formatCurrency(order.total, order.currency)}
                   </dd>
                 </div>
               </div>
             </dl>
-          </section>
+          </Panel>
         </div>
       </div>
-    </div>
+    </>
   );
 }

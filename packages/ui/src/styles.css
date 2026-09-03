@@ -1,13 +1,15 @@
 :root {
-  --commerce-background: #f8fafc;
+  --commerce-background: #f7f8fc;
   --commerce-surface: #ffffff;
   --commerce-foreground: #0f172a;
   --commerce-muted-foreground: #64748b;
   --commerce-border: #e2e8f0;
+  --commerce-accent: #4f46e5;
 }
 
 html {
   color-scheme: light;
+  background: var(--commerce-background);
 }
 
 * {
@@ -16,9 +18,17 @@ html {
 
 body {
   margin: 0;
-  background: var(--commerce-background);
+  background:
+    radial-gradient(
+      circle at 80% -10%,
+      rgba(99, 102, 241, 0.07),
+      transparent 26rem
+    ),
+    var(--commerce-background);
   color: var(--commerce-foreground);
   font-family: Arial, Helvetica, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 button,
@@ -26,4 +36,28 @@ input,
 select,
 textarea {
   font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: rgba(99, 102, 241, 0.18);
+}
+
+input,
+select,
+textarea {
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #818cf8;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08);
 }
