@@ -33,7 +33,7 @@ export default async function QuotationsPage() {
       <PageHeader
         eyebrow="Sales operations"
         title="Quotations"
-        description="Create commercial proposals, manage customer approval, and hand accepted quotations over to Order Operations."
+        description="Create customer quotations, manage approval status, and convert accepted proposals into orders."
         actions={
           <Link href="/quotations/new" className={buttonClassName()}>
             + Create quotation
@@ -52,21 +52,21 @@ export default async function QuotationsPage() {
         <StatCard
           label="Draft"
           value={draftCount}
-          hint="Being prepared"
+          hint="In preparation"
           tone="neutral"
         />
 
         <StatCard
-          label="In review"
+          label="Awaiting Response"
           value={reviewCount}
-          hint="Waiting customer"
+          hint="Sent to customers"
           tone="amber"
         />
 
         <StatCard
-          label="Ready"
+          label="Accepted"
           value={readyCount}
-          hint="Can convert to order"
+          hint="Ready for conversion"
           tone="emerald"
         />
       </div>

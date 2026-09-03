@@ -97,7 +97,7 @@ export default async function PaymentDetailPage({
         <Panel>
           <PanelHeader
             title="Transaction information"
-            description="Financial details for this order settlement."
+            description="Transaction details and settlement history for this payment."
           />
 
           <div className="grid gap-px bg-slate-100 sm:grid-cols-2">
@@ -135,15 +135,19 @@ export default async function PaymentDetailPage({
                 Related order
               </p>
 
+              <p className="mt-3 text-sm leading-6 text-slate-600 font-bold font-mono">
+                {payment.orderId}
+              </p>
+
               <p className="mt-3 text-sm leading-6 text-slate-600">
-                Operational ownership remains within the Orders microfrontend.
+                This payment is associated with the following customer order.
               </p>
 
               <MicrofrontendLink
                 href={`/orders/${payment.orderId}`}
-                className="mt-4 inline-flex font-mono text-sm font-bold text-indigo-600 hover:text-indigo-700"
+                className="mt-4 inline-flex  text-sm font-bold text-indigo-600 hover:text-indigo-700"
               >
-                {payment.orderId} →
+                View order →
               </MicrofrontendLink>
             </div>
           </Panel>
@@ -155,8 +159,8 @@ export default async function PaymentDetailPage({
               <PaymentStatusBadge status={payment.status} />
 
               <p className="mt-4 text-sm leading-6 text-slate-500">
-                Payment state is managed independently by Finance Operations and
-                cannot be modified directly by the Orders domain.
+                Settlement status reflects the latest payment activity recorded
+                by Finance Operations.
               </p>
             </div>
           </Panel>

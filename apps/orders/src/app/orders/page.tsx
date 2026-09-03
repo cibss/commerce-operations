@@ -25,7 +25,7 @@ export default async function OrdersPage() {
       <PageHeader
         eyebrow="Order operations"
         title="Orders"
-        description="Coordinate order confirmation, fulfillment, shipping, and completion after commercial handover."
+        description="Track customer orders from confirmation through fulfillment, shipping, and completion."
       />
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -44,9 +44,9 @@ export default async function OrdersPage() {
         />
 
         <StatCard
-          label="Active"
+          label="In Fulfillment"
           value={processing}
-          hint="Currently processing"
+          hint="Confirmed or processing"
           tone="neutral"
         />
 

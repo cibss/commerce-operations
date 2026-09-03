@@ -81,7 +81,7 @@ export default async function OrderDetailPage({
       <PageHeader
         eyebrow="Order detail"
         title={order.id}
-        description={`Order for ${order.customerName}. Updated ${formatDateTime(
+        description={`Order for ${order.customerName} · Updated ${formatDateTime(
           order.updatedAt,
         )}.`}
         actions={
@@ -142,7 +142,7 @@ export default async function OrderDetailPage({
       <Panel className="mt-8">
         <PanelHeader
           title="Fulfillment lifecycle"
-          description="Operational progression after quotation conversion."
+          description="Track this order through confirmation, fulfillment, shipping, and completion."
         />
 
         <div className="overflow-x-auto px-6 py-6">
@@ -230,7 +230,7 @@ export default async function OrderDetailPage({
           <Panel>
             <div className="p-6">
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Commercial source
+                Source Quotation
               </p>
 
               <p className="mt-3 font-mono text-sm font-bold text-indigo-600">
@@ -238,7 +238,7 @@ export default async function OrderDetailPage({
               </p>
 
               <p className="mt-2 text-xs leading-5 text-slate-500">
-                Source document from the Sales Operations domain.
+                This order was created from an accepted customer quotation.
               </p>
             </div>
           </Panel>

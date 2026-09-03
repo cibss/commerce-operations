@@ -26,7 +26,7 @@ export default async function PaymentsPage() {
       <PageHeader
         eyebrow="Finance operations"
         title="Payments"
-        description="Track settlement status, payment failures, completed transactions, and refund operations."
+        description="Monitor payment settlement, failed transactions, completed payments, and refunds."
       />
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

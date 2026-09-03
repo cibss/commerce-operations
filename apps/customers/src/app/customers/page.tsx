@@ -23,7 +23,7 @@ export default async function CustomersPage() {
       <PageHeader
         eyebrow="Customer operations"
         title="Customers"
-        description="Manage canonical B2B customer accounts shared across sales and order workflows."
+        description="Manage B2B customer accounts and review their quotation and order activity in one place."
       />
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">

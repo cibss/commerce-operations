@@ -25,7 +25,7 @@ export default async function NewQuotationPage({
       <PageHeader
         eyebrow="Sales operations"
         title="Create quotation"
-        description="Prepare a new commercial proposal for an existing B2B customer."
+        description="Create a commercial quotation for an existing customer account."
         actions={
           <Link href="/quotations" className={buttonClassName("secondary")}>
             Cancel
@@ -199,19 +199,15 @@ export default async function NewQuotationPage({
             <Panel>
               <div className="p-6">
                 <p className="text-xs font-bold uppercase tracking-wider text-indigo-600">
-                  Workflow
+                  What Happens Next
                 </p>
-
-                <h2 className="mt-2 text-base font-bold text-slate-950">
-                  New quotation
-                </h2>
 
                 <div className="mt-5 space-y-4">
                   {[
-                    "Created as DRAFT",
-                    "Send to customer",
-                    "Customer accepts",
-                    "Convert to order",
+                    "Save as draft",
+                    "Send for customer approval",
+                    "Record the customer's decision",
+                    "Convert an accepted quote to an order",
                   ].map((item, index) => (
                     <div key={item} className="flex gap-3">
                       <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-[10px] font-bold text-indigo-600">

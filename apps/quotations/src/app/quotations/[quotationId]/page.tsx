@@ -76,7 +76,7 @@ export default async function QuotationDetailPage({
       <PageHeader
         eyebrow="Quotation detail"
         title={quotation.id}
-        description={`Commercial proposal for ${quotation.customerName}. Last updated ${formatDateTime(
+        description={`Quotation for ${quotation.customerName} · Last updated ${formatDateTime(
           quotation.updatedAt,
         )}.`}
         actions={
@@ -148,7 +148,7 @@ export default async function QuotationDetailPage({
       <Panel className="mt-8">
         <PanelHeader
           title="Quotation lifecycle"
-          description="Sales workflow state and handover readiness."
+          description="Track the quotation from draft through customer approval and order conversion."
         />
 
         <div className="overflow-x-auto px-6 py-6">
@@ -242,21 +242,26 @@ export default async function QuotationDetailPage({
           {quotation.status === "CONVERTED" && quotation.convertedOrderId ? (
             <Panel className="border-indigo-200 bg-gradient-to-br from-indigo-50 to-white">
               <div className="p-6">
-                <Badge variant="accent">Handover complete</Badge>
+                <Badge variant="accent">Order Created</Badge>
 
                 <h3 className="mt-4 text-sm font-bold text-slate-950">
-                  Order created
+                  Converted successfully
                 </h3>
 
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Ownership has moved from Sales Operations to Order Operations.
+                  This quotation was converted into <br />
+                  <span className="mt-3 text-sm leading-6 text-slate-600 font-bold font-mono">
+                    {quotation.convertedOrderId}
+                  </span>
+                  <br />
+                  and is now being processed as an order.
                 </p>
 
                 <MicrofrontendLink
                   href={`/orders/${quotation.convertedOrderId}`}
-                  className="mt-4 inline-flex font-mono text-sm font-bold text-indigo-600 hover:text-indigo-700"
+                  className="mt-4 inline-flex text-sm font-bold text-indigo-600 hover:text-indigo-700"
                 >
-                  {quotation.convertedOrderId} →
+                  View order →
                 </MicrofrontendLink>
               </div>
             </Panel>

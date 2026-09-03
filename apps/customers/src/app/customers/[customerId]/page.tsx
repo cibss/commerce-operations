@@ -103,7 +103,7 @@ export default async function CustomerDetailPage({
           <Panel>
             <PanelHeader
               title="Quotation activity"
-              description="Commercial history owned by Sales Operations."
+              description="Quotation history for this customer."
             />
 
             <div className="divide-y divide-slate-100">
@@ -134,7 +134,7 @@ export default async function CustomerDetailPage({
           <Panel>
             <PanelHeader
               title="Order activity"
-              description="Operational history owned by Order Operations."
+              description="Orders created for this customer."
             />
 
             <div className="divide-y divide-slate-100">

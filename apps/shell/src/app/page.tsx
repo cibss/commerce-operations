@@ -6,7 +6,7 @@ const domains = [
   {
     title: "Quotations",
     description:
-      "Build commercial proposals, manage approval states, and convert accepted quotations into operational orders.",
+      "Create customer quotations, manage approvals, and convert accepted commercial agreements into orders.",
     href: "/quotations",
     ownership: "Sales Operations",
     accent: "from-indigo-500 to-violet-500",
@@ -16,7 +16,7 @@ const domains = [
   {
     title: "Orders",
     description:
-      "Coordinate confirmation, fulfillment, shipping, and completion across the order lifecycle.",
+      "Manage order confirmation, fulfillment, shipping, and completion after commercial handover.",
     href: "/orders",
     ownership: "Order Operations",
     accent: "from-blue-500 to-cyan-500",
@@ -26,7 +26,7 @@ const domains = [
   {
     title: "Customers",
     description:
-      "Maintain B2B accounts and review commercial activity across quotations and orders.",
+      "Maintain B2B customer accounts and view their commercial activity across quotations and orders.",
     href: "/customers",
     ownership: "Customer Operations",
     accent: "from-violet-500 to-fuchsia-500",
@@ -36,7 +36,7 @@ const domains = [
   {
     title: "Payments",
     description:
-      "Track settlement, payment failures, completed transactions, and refund operations.",
+      "Monitor payment settlement, failed transactions, completed payments, and refunds.",
     href: "/payments",
     ownership: "Finance Operations",
     accent: "from-emerald-500 to-teal-500",
@@ -47,11 +47,11 @@ const domains = [
 
 const workflow = [
   "Quotation",
-  "Accepted",
+  "Approval",
   "Order",
-  "Processing",
+  "Fulfillment",
   "Payment",
-  "Complete",
+  "Completed",
 ];
 
 export default function Home() {
@@ -59,15 +59,15 @@ export default function Home() {
     <CommerceShell activeSection="home">
       <PageHeader
         eyebrow="Operations workspace"
-        title="Commerce operations"
-        description="A B2B operations platform demonstrating domain-oriented microfrontends, explicit business contracts, and independent application ownership."
+        title="Commerce Operations"
+        description="Coordinate the B2B quote-to-cash lifecycle across sales, customer, fulfillment, and finance operations."
       >
         <div className="flex flex-wrap gap-2">
-          <Badge variant="accent">Path-based microfrontends</Badge>
+          <Badge variant="accent">Microfrontend architecture</Badge>
 
           <Badge variant="success">5 independent applications</Badge>
 
-          <Badge variant="neutral">Next.js · Turborepo</Badge>
+          <Badge variant="neutral">Unified operations workspace</Badge>
         </div>
       </PageHeader>
 
@@ -103,8 +103,8 @@ export default function Home() {
 
       <Panel className="mt-6">
         <PanelHeader
-          title="Quotation-to-order workflow"
-          description="The main cross-domain business journey implemented by the platform."
+          title="Quote-to-cash workflow"
+          description="Track a commercial opportunity from initial quotation through fulfillment and payment settlement."
           action={<Badge variant="success">Operational</Badge>}
         />
 
@@ -183,7 +183,7 @@ export default function Home() {
               <div className="mt-6 flex items-center gap-6 border-t border-slate-100 pt-4">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Ownership
+                    Owned By
                   </p>
 
                   <p className="mt-1 text-xs font-semibold text-slate-700">
@@ -193,7 +193,7 @@ export default function Home() {
 
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Capability
+                    Workflow
                   </p>
 
                   <p className="mt-1 text-xs font-semibold text-slate-700">
