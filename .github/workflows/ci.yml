@@ -8,6 +8,7 @@ on:
       - staging
 
 env:
+  DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/commerce_operations_ci
   COMMERCE_API_ORIGIN: http://localhost:3003
   COMMERCE_PLATFORM_URL: http://localhost:3024
 
@@ -15,6 +16,21 @@ jobs:
   quality:
     name: Quality
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: commerce_operations_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d commerce_operations_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout repository
@@ -33,6 +49,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Apply database migrations
+        run: npm run db:migrate --workspace=@commerce/api
+
+      - name: Seed test database
+        run: npm run db:seed --workspace=@commerce/api
 
       - name: Lint
         run: npm run lint
@@ -50,6 +72,21 @@ jobs:
     name: End-to-End
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: commerce_operations_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d commerce_operations_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -67,6 +104,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Apply database migrations
+        run: npm run db:migrate --workspace=@commerce/api
+
+      - name: Seed test database
+        run: npm run db:seed --workspace=@commerce/api
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
