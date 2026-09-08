@@ -1,9 +1,9 @@
-import { getCustomer } from "@/lib/customers";
 import { listOrders } from "@/lib/orders";
 import { listQuotations } from "@/lib/quotations";
+import { CustomerRepository } from "@/repositories/CustomerRepository";
 
-export function getCustomerOverview(customerId: string) {
-  const customer = getCustomer(customerId);
+export async function getCustomerOverview(customerId: string) {
+  const customer = await CustomerRepository.getById(customerId);
 
   const quotations = listQuotations()
     .filter((quotation) => quotation.customerId === customerId)
@@ -33,11 +33,13 @@ export function getCustomerOverview(customerId: string) {
 
   return {
     customer,
+
     stats: {
       quotationCount: quotations.length,
       orderCount: orders.length,
       totalOrderValue,
     },
+
     quotations,
     orders,
   };

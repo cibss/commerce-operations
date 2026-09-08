@@ -13,8 +13,10 @@ export async function GET(_request: Request, context: RouteContext) {
   try {
     const { customerId } = await context.params;
 
+    const overview = await getCustomerOverview(customerId);
+
     return NextResponse.json({
-      data: getCustomerOverview(customerId),
+      data: overview,
     });
   } catch (error) {
     return createApiErrorResponse(error);

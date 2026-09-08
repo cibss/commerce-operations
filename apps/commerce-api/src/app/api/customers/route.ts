@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 
-import { listCustomers } from "@/lib/customers";
+import { CustomerRepository } from "@/repositories/CustomerRepository";
 
 export async function GET() {
+  const customerList = await CustomerRepository.list();
+
   return NextResponse.json({
-    data: listCustomers(),
+    data: customerList,
   });
 }

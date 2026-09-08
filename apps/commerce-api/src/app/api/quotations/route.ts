@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   try {
     const input = (await request.json()) as CreateQuotationForCustomerInput;
 
-    const quotation = createQuotationForCustomer(input);
+    const quotation = await createQuotationForCustomer(input);
 
     return NextResponse.json(
       {

@@ -1,26 +1,28 @@
-import { getCustomer } from "@/lib/customers";
 import {
   createQuotation,
   type Currency,
   type Quotation,
 } from "@/lib/quotations";
+import { CustomerRepository } from "@/repositories/CustomerRepository";
 
 export type CreateQuotationForCustomerInput = {
   customerId: string;
+
   items: Array<{
     sku: string;
     name: string;
     quantity: number;
     unitPrice: number;
   }>;
+
   discount?: number;
   currency?: Currency;
 };
 
-export function createQuotationForCustomer(
+export async function createQuotationForCustomer(
   input: CreateQuotationForCustomerInput,
-): Quotation {
-  const customer = getCustomer(input.customerId);
+): Promise<Quotation> {
+  const customer = await CustomerRepository.getById(input.customerId);
 
   return createQuotation({
     customerId: customer.id,
