@@ -1,13 +1,15 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
   "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": ["DATABASE_URL", "COMMERCE_API_ORIGIN", "COMMERCE_PLATFORM_URL"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
-    },
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]

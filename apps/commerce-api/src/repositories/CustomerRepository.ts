@@ -1,6 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 
-import { db } from "@/db/client";
+import { getDatabase } from "@/db/client";
 import { customers } from "@/db/schema";
 import {
   CustomerDomainError,
@@ -26,6 +26,8 @@ function mapCustomerRow(row: CustomerRow): Customer {
 }
 
 async function list(): Promise<Customer[]> {
+  const db = getDatabase();
+
   const rows = await db
     .select()
     .from(customers)
@@ -35,6 +37,8 @@ async function list(): Promise<Customer[]> {
 }
 
 async function getById(customerId: string): Promise<Customer> {
+  const db = getDatabase();
+
   const [row] = await db
     .select()
     .from(customers)

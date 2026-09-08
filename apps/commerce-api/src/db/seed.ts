@@ -287,7 +287,10 @@ const paymentSeed = [
 ] satisfies Array<typeof payments.$inferInsert>;
 
 async function seedDatabase() {
-  const { db, pool } = await import("@/db/client");
+  const { getDatabase, getDatabasePool } = await import("@/db/client");
+
+  const db = getDatabase();
+  const pool = getDatabasePool();
 
   try {
     console.log("Seeding Commerce Operations database...");
