@@ -34,12 +34,14 @@ export type Quotation = {
 export type CreateQuotationInput = {
   customerId: string;
   customerName: string;
+
   items: Array<{
     sku: string;
     name: string;
     quantity: number;
     unitPrice: number;
   }>;
+
   discount?: number;
   currency?: Currency;
 };
@@ -55,126 +57,7 @@ export class QuotationDomainError extends Error {
   }
 }
 
-const seedQuotations: Quotation[] = [
-  {
-    id: "QT-2026-0042",
-    customerId: "CUST-0192",
-    customerName: "PT Nusantara Teknologi",
-    items: [
-      {
-        id: "ITEM-001",
-        sku: "MBP-M4-14",
-        name: "MacBook Pro 14 M4",
-        quantity: 10,
-        unitPrice: 30_000_000,
-        lineTotal: 300_000_000,
-      },
-      {
-        id: "ITEM-002",
-        sku: "DOCK-USBC",
-        name: "USB-C Dock",
-        quantity: 10,
-        unitPrice: 2_000_000,
-        lineTotal: 20_000_000,
-      },
-    ],
-    subtotal: 320_000_000,
-    discount: 10_000_000,
-    total: 310_000_000,
-    currency: "IDR",
-    status: "ACCEPTED",
-    convertedOrderId: null,
-    createdAt: "2026-08-28T09:30:00.000Z",
-    updatedAt: "2026-08-30T04:15:00.000Z",
-  },
-  {
-    id: "QT-2026-0041",
-    customerId: "CUST-0188",
-    customerName: "PT Sinar Digital Indonesia",
-    items: [
-      {
-        id: "ITEM-003",
-        sku: "MON-4K-27",
-        name: "27-inch 4K Monitor",
-        quantity: 15,
-        unitPrice: 6_500_000,
-        lineTotal: 97_500_000,
-      },
-    ],
-    subtotal: 97_500_000,
-    discount: 2_500_000,
-    total: 95_000_000,
-    currency: "IDR",
-    status: "SENT",
-    convertedOrderId: null,
-    createdAt: "2026-08-26T02:00:00.000Z",
-    updatedAt: "2026-08-27T06:30:00.000Z",
-  },
-  {
-    id: "QT-2026-0040",
-    customerId: "CUST-0179",
-    customerName: "PT Aruna Commerce",
-    items: [
-      {
-        id: "ITEM-004",
-        sku: "LAPTOP-BIZ-01",
-        name: "Business Laptop",
-        quantity: 20,
-        unitPrice: 14_000_000,
-        lineTotal: 280_000_000,
-      },
-    ],
-    subtotal: 280_000_000,
-    discount: 0,
-    total: 280_000_000,
-    currency: "IDR",
-    status: "DRAFT",
-    convertedOrderId: null,
-    createdAt: "2026-08-24T08:00:00.000Z",
-    updatedAt: "2026-08-24T08:00:00.000Z",
-  },
-];
-
-const quotations = new Map<string, Quotation>(
-  seedQuotations.map((quotation) => [quotation.id, quotation]),
-);
-
-let quotationSequence = 43;
-let itemSequence = 5;
-
-function cloneQuotation(quotation: Quotation): Quotation {
-  return structuredClone(quotation);
-}
-
-function getQuotationOrThrow(id: string): Quotation {
-  const quotation = quotations.get(id);
-
-  if (!quotation) {
-    throw new QuotationDomainError(`Quotation ${id} was not found.`, 404);
-  }
-
-  return quotation;
-}
-
-function generateQuotationId() {
-  const year = new Date().getFullYear();
-
-  const id = `QT-${year}-${String(quotationSequence).padStart(4, "0")}`;
-
-  quotationSequence += 1;
-
-  return id;
-}
-
-function generateItemId() {
-  const id = `ITEM-${String(itemSequence).padStart(3, "0")}`;
-
-  itemSequence += 1;
-
-  return id;
-}
-
-function validateCreateInput(input: CreateQuotationInput) {
+export function validateCreateQuotationInput(input: CreateQuotationInput) {
   if (!input.customerId.trim()) {
     throw new QuotationDomainError("Customer ID is required.");
   }
@@ -219,120 +102,16 @@ function validateCreateInput(input: CreateQuotationInput) {
   }
 }
 
-function transitionQuotation(
-  id: string,
-  from: QuotationStatus,
-  to: QuotationStatus,
-): Quotation {
-  const quotation = getQuotationOrThrow(id);
-
-  if (quotation.status !== from) {
+export function assertQuotationTransition(
+  quotationId: string,
+  currentStatus: QuotationStatus,
+  expectedStatus: QuotationStatus,
+  nextStatus: QuotationStatus,
+) {
+  if (currentStatus !== expectedStatus) {
     throw new QuotationDomainError(
-      `Quotation ${id} cannot transition from ${quotation.status} to ${to}.`,
+      `Quotation ${quotationId} cannot transition from ${currentStatus} to ${nextStatus}.`,
       409,
     );
   }
-
-  const updatedQuotation: Quotation = {
-    ...quotation,
-    status: to,
-    updatedAt: new Date().toISOString(),
-  };
-
-  quotations.set(id, updatedQuotation);
-
-  return cloneQuotation(updatedQuotation);
-}
-
-export function listQuotations(): Quotation[] {
-  return Array.from(quotations.values())
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    .map(cloneQuotation);
-}
-
-export function getQuotation(id: string): Quotation {
-  return cloneQuotation(getQuotationOrThrow(id));
-}
-
-export function createQuotation(input: CreateQuotationInput): Quotation {
-  validateCreateInput(input);
-
-  const items: QuotationItem[] = input.items.map((item) => ({
-    id: generateItemId(),
-    sku: item.sku.trim(),
-    name: item.name.trim(),
-    quantity: item.quantity,
-    unitPrice: item.unitPrice,
-    lineTotal: item.quantity * item.unitPrice,
-  }));
-
-  const subtotal = items.reduce((total, item) => total + item.lineTotal, 0);
-
-  const discount = input.discount ?? 0;
-
-  if (discount > subtotal) {
-    throw new QuotationDomainError("Discount cannot be greater than subtotal.");
-  }
-
-  const timestamp = new Date().toISOString();
-
-  const quotation: Quotation = {
-    id: generateQuotationId(),
-    customerId: input.customerId.trim(),
-    customerName: input.customerName.trim(),
-    items,
-    subtotal,
-    discount,
-    total: subtotal - discount,
-    currency: input.currency ?? "IDR",
-    status: "DRAFT",
-    convertedOrderId: null,
-    createdAt: timestamp,
-    updatedAt: timestamp,
-  };
-
-  quotations.set(quotation.id, quotation);
-
-  return cloneQuotation(quotation);
-}
-
-export function sendQuotation(id: string): Quotation {
-  return transitionQuotation(id, "DRAFT", "SENT");
-}
-
-export function acceptQuotation(id: string): Quotation {
-  return transitionQuotation(id, "SENT", "ACCEPTED");
-}
-
-export function rejectQuotation(id: string): Quotation {
-  return transitionQuotation(id, "SENT", "REJECTED");
-}
-
-export function markQuotationConverted(id: string, orderId: string): Quotation {
-  const quotation = getQuotationOrThrow(id);
-
-  if (
-    quotation.status === "CONVERTED" &&
-    quotation.convertedOrderId === orderId
-  ) {
-    return cloneQuotation(quotation);
-  }
-
-  if (quotation.status !== "ACCEPTED") {
-    throw new QuotationDomainError(
-      `Quotation ${id} cannot be converted from ${quotation.status}.`,
-      409,
-    );
-  }
-
-  const updatedQuotation: Quotation = {
-    ...quotation,
-    status: "CONVERTED",
-    convertedOrderId: orderId,
-    updatedAt: new Date().toISOString(),
-  };
-
-  quotations.set(id, updatedQuotation);
-
-  return cloneQuotation(updatedQuotation);
 }

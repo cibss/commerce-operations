@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { createApiErrorResponse } from "@/lib/api-error";
-import { getPayment } from "@/lib/payments";
+import { PaymentService } from "@/services/PaymentService";
 
 type RouteContext = {
   params: Promise<{
@@ -13,8 +13,10 @@ export async function GET(_request: Request, context: RouteContext) {
   try {
     const { paymentId } = await context.params;
 
+    const payment = await PaymentService.getById(paymentId);
+
     return NextResponse.json({
-      data: getPayment(paymentId),
+      data: payment,
     });
   } catch (error) {
     return createApiErrorResponse(error);

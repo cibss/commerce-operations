@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { createApiErrorResponse } from "@/lib/api-error";
-import { acceptQuotation } from "@/lib/quotations";
+import { QuotationService } from "@/services/QuotationService";
 
 type RouteContext = {
   params: Promise<{
@@ -13,8 +13,10 @@ export async function POST(_request: Request, context: RouteContext) {
   try {
     const { quotationId } = await context.params;
 
+    const quotation = await QuotationService.accept(quotationId);
+
     return NextResponse.json({
-      data: acceptQuotation(quotationId),
+      data: quotation,
     });
   } catch (error) {
     return createApiErrorResponse(error);

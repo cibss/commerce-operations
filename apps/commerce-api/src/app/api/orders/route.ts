@@ -1,9 +1,16 @@
 import { NextResponse } from "next/server";
 
-import { listOrders } from "@/lib/orders";
+import { createApiErrorResponse } from "@/lib/api-error";
+import { OrderService } from "@/services/OrderService";
 
 export async function GET() {
-  return NextResponse.json({
-    data: listOrders(),
-  });
+  try {
+    const orders = await OrderService.list();
+
+    return NextResponse.json({
+      data: orders,
+    });
+  } catch (error) {
+    return createApiErrorResponse(error);
+  }
 }

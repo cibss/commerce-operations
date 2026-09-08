@@ -5,12 +5,18 @@ import {
   createQuotationForCustomer,
   type CreateQuotationForCustomerInput,
 } from "@/lib/create-quotation";
-import { listQuotations } from "@/lib/quotations";
+import { QuotationService } from "@/services/QuotationService";
 
 export async function GET() {
-  return NextResponse.json({
-    data: listQuotations(),
-  });
+  try {
+    const quotations = await QuotationService.list();
+
+    return NextResponse.json({
+      data: quotations,
+    });
+  } catch (error) {
+    return createApiErrorResponse(error);
+  }
 }
 
 export async function POST(request: Request) {

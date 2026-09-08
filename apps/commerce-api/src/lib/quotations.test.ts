@@ -1,57 +1,64 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
+
+import {
+  assertQuotationTransition,
+  QuotationDomainError,
+  validateCreateQuotationInput,
+} from "@/lib/quotations";
 
 describe("quotation domain", () => {
-  beforeEach(() => {
-    vi.resetModules();
+  it("allows DRAFT to transition to SENT", () => {
+    expect(() =>
+      assertQuotationTransition("QT-2026-0040", "DRAFT", "DRAFT", "SENT"),
+    ).not.toThrow();
   });
 
-  it("moves a quotation from DRAFT to SENT to ACCEPTED", async () => {
-    const { acceptQuotation, getQuotation, sendQuotation } =
-      await import("@/lib/quotations");
-
-    expect(getQuotation("QT-2026-0040").status).toBe("DRAFT");
-
-    const sentQuotation = sendQuotation("QT-2026-0040");
-
-    expect(sentQuotation.status).toBe("SENT");
-
-    const acceptedQuotation = acceptQuotation("QT-2026-0040");
-
-    expect(acceptedQuotation.status).toBe("ACCEPTED");
+  it("allows SENT to transition to ACCEPTED", () => {
+    expect(() =>
+      assertQuotationTransition("QT-2026-0040", "SENT", "SENT", "ACCEPTED"),
+    ).not.toThrow();
   });
 
-  it("allows a SENT quotation to be rejected", async () => {
-    const { getQuotation, rejectQuotation, sendQuotation } =
-      await import("@/lib/quotations");
+  it("rejects DRAFT to ACCEPTED", () => {
+    expect(() =>
+      assertQuotationTransition("QT-2026-0040", "DRAFT", "SENT", "ACCEPTED"),
+    ).toThrow(QuotationDomainError);
 
-    sendQuotation("QT-2026-0040");
-
-    const rejectedQuotation = rejectQuotation("QT-2026-0040");
-
-    expect(rejectedQuotation.status).toBe("REJECTED");
-
-    expect(getQuotation("QT-2026-0040").status).toBe("REJECTED");
-  });
-
-  it("rejects an invalid DRAFT to ACCEPTED transition", async () => {
-    const { acceptQuotation, QuotationDomainError } =
-      await import("@/lib/quotations");
-
-    expect(() => acceptQuotation("QT-2026-0040")).toThrow(QuotationDomainError);
-
-    expect(() => acceptQuotation("QT-2026-0040")).toThrow(
+    expect(() =>
+      assertQuotationTransition("QT-2026-0040", "DRAFT", "SENT", "ACCEPTED"),
+    ).toThrow(
       "Quotation QT-2026-0040 cannot transition from DRAFT to ACCEPTED.",
     );
   });
 
-  it("rejects an unknown quotation", async () => {
-    const { getQuotation, QuotationDomainError } =
-      await import("@/lib/quotations");
+  it("rejects empty quotation items", () => {
+    expect(() =>
+      validateCreateQuotationInput({
+        customerId: "CUST-0192",
 
-    expect(() => getQuotation("QT-UNKNOWN")).toThrow(QuotationDomainError);
+        customerName: "PT Nusantara Teknologi",
 
-    expect(() => getQuotation("QT-UNKNOWN")).toThrow(
-      "Quotation QT-UNKNOWN was not found.",
-    );
+        items: [],
+      }),
+    ).toThrow("A quotation must contain at least one item.");
+  });
+
+  it("rejects invalid item quantity", () => {
+    expect(() =>
+      validateCreateQuotationInput({
+        customerId: "CUST-0192",
+
+        customerName: "PT Nusantara Teknologi",
+
+        items: [
+          {
+            sku: "SKU-001",
+            name: "Test Product",
+            quantity: 0,
+            unitPrice: 100_000,
+          },
+        ],
+      }),
+    ).toThrow("Item quantity must be a positive integer.");
   });
 });

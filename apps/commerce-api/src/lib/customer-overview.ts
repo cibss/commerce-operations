@@ -1,11 +1,15 @@
-import { listOrders } from "@/lib/orders";
-import { listQuotations } from "@/lib/quotations";
 import { CustomerRepository } from "@/repositories/CustomerRepository";
+import { OrderService } from "@/services/OrderService";
+import { QuotationService } from "@/services/QuotationService";
 
 export async function getCustomerOverview(customerId: string) {
-  const customer = await CustomerRepository.getById(customerId);
+  const [customer, quotationList, orderList] = await Promise.all([
+    CustomerRepository.getById(customerId),
+    QuotationService.list(),
+    OrderService.list(),
+  ]);
 
-  const quotations = listQuotations()
+  const quotations = quotationList
     .filter((quotation) => quotation.customerId === customerId)
     .map((quotation) => ({
       id: quotation.id,
@@ -15,14 +19,19 @@ export async function getCustomerOverview(customerId: string) {
       updatedAt: quotation.updatedAt,
     }));
 
-  const orders = listOrders()
+  const orders = orderList
     .filter((order) => order.customerId === customerId)
     .map((order) => ({
       id: order.id,
+
       sourceQuotationId: order.sourceQuotationId,
+
       total: order.total,
+
       currency: order.currency,
+
       status: order.status,
+
       updatedAt: order.updatedAt,
     }));
 
@@ -36,7 +45,9 @@ export async function getCustomerOverview(customerId: string) {
 
     stats: {
       quotationCount: quotations.length,
+
       orderCount: orders.length,
+
       totalOrderValue,
     },
 

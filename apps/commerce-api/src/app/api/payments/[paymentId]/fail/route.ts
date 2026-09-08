@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { createApiErrorResponse } from "@/lib/api-error";
-import { markPaymentFailed } from "@/lib/payments";
+import { PaymentService } from "@/services/PaymentService";
 
 type RouteContext = {
   params: Promise<{
@@ -13,8 +13,10 @@ export async function POST(_request: Request, context: RouteContext) {
   try {
     const { paymentId } = await context.params;
 
+    const payment = await PaymentService.markFailed(paymentId);
+
     return NextResponse.json({
-      data: markPaymentFailed(paymentId),
+      data: payment,
     });
   } catch (error) {
     return createApiErrorResponse(error);

@@ -1,45 +1,46 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
+
+import { assertPaymentTransition, PaymentDomainError } from "@/lib/payments";
 
 describe("payment domain", () => {
-  beforeEach(() => {
-    vi.resetModules();
+  it("allows PENDING to transition to PAID", () => {
+    expect(() =>
+      assertPaymentTransition("PAY-2026-0091", "PENDING", ["PENDING"], "PAID"),
+    ).not.toThrow();
   });
 
-  it("moves a payment from PENDING to PAID to REFUNDED", async () => {
-    const { getPayment, markPaymentPaid, refundPayment } =
-      await import("@/lib/payments");
-
-    expect(getPayment("PAY-2026-0091").status).toBe("PENDING");
-
-    const paidPayment = markPaymentPaid("PAY-2026-0091");
-
-    expect(paidPayment.status).toBe("PAID");
-
-    expect(paidPayment.paidAt).not.toBeNull();
-
-    const refundedPayment = refundPayment("PAY-2026-0091");
-
-    expect(refundedPayment.status).toBe("REFUNDED");
-
-    expect(refundedPayment.refundedAt).not.toBeNull();
+  it("allows PAID to transition to REFUNDED", () => {
+    expect(() =>
+      assertPaymentTransition("PAY-2026-0091", "PAID", ["PAID"], "REFUNDED"),
+    ).not.toThrow();
   });
 
-  it("allows a pending payment to fail", async () => {
-    const { markPaymentFailed } = await import("@/lib/payments");
-
-    const failedPayment = markPaymentFailed("PAY-2026-0091");
-
-    expect(failedPayment.status).toBe("FAILED");
+  it("allows PENDING to transition to FAILED", () => {
+    expect(() =>
+      assertPaymentTransition(
+        "PAY-2026-0091",
+        "PENDING",
+        ["PENDING"],
+        "FAILED",
+      ),
+    ).not.toThrow();
   });
 
-  it("rejects refunding an unpaid transaction", async () => {
-    const { PaymentDomainError, refundPayment } =
-      await import("@/lib/payments");
+  it("rejects refunding a PENDING payment", () => {
+    expect(() =>
+      assertPaymentTransition("PAY-2026-0091", "PENDING", ["PAID"], "REFUNDED"),
+    ).toThrow(PaymentDomainError);
 
-    expect(() => refundPayment("PAY-2026-0091")).toThrow(PaymentDomainError);
-
-    expect(() => refundPayment("PAY-2026-0091")).toThrow(
+    expect(() =>
+      assertPaymentTransition("PAY-2026-0091", "PENDING", ["PAID"], "REFUNDED"),
+    ).toThrow(
       "Payment PAY-2026-0091 cannot transition from PENDING to REFUNDED.",
     );
+  });
+
+  it("rejects marking an already paid payment as failed", () => {
+    expect(() =>
+      assertPaymentTransition("PAY-2026-0091", "PAID", ["PENDING"], "FAILED"),
+    ).toThrow("Payment PAY-2026-0091 cannot transition from PAID to FAILED.");
   });
 });

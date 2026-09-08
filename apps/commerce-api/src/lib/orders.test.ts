@@ -1,42 +1,74 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
+
+import { assertOrderTransition, OrderDomainError } from "@/lib/orders";
 
 describe("order domain", () => {
-  beforeEach(() => {
-    vi.resetModules();
+  it("allows the normal fulfillment lifecycle", () => {
+    expect(() =>
+      assertOrderTransition(
+        "ORD-2026-0181",
+        "PENDING",
+        ["PENDING"],
+        "CONFIRMED",
+      ),
+    ).not.toThrow();
+
+    expect(() =>
+      assertOrderTransition(
+        "ORD-2026-0181",
+        "CONFIRMED",
+        ["CONFIRMED"],
+        "PROCESSING",
+      ),
+    ).not.toThrow();
+
+    expect(() =>
+      assertOrderTransition(
+        "ORD-2026-0181",
+        "PROCESSING",
+        ["PROCESSING"],
+        "SHIPPED",
+      ),
+    ).not.toThrow();
+
+    expect(() =>
+      assertOrderTransition(
+        "ORD-2026-0181",
+        "SHIPPED",
+        ["SHIPPED"],
+        "COMPLETED",
+      ),
+    ).not.toThrow();
   });
 
-  it("runs the full order fulfillment lifecycle", async () => {
-    const { completeOrder, confirmOrder, getOrder, processOrder, shipOrder } =
-      await import("@/lib/orders");
-
-    expect(getOrder("ORD-2026-0181").status).toBe("PENDING");
-
-    expect(confirmOrder("ORD-2026-0181").status).toBe("CONFIRMED");
-
-    expect(processOrder("ORD-2026-0181").status).toBe("PROCESSING");
-
-    expect(shipOrder("ORD-2026-0181").status).toBe("SHIPPED");
-
-    expect(completeOrder("ORD-2026-0181").status).toBe("COMPLETED");
+  it("allows cancellation before fulfillment starts", () => {
+    expect(() =>
+      assertOrderTransition(
+        "ORD-2026-0181",
+        "CONFIRMED",
+        ["PENDING", "CONFIRMED"],
+        "CANCELLED",
+      ),
+    ).not.toThrow();
   });
 
-  it("allows cancellation before fulfillment starts", async () => {
-    const { cancelOrder, confirmOrder } = await import("@/lib/orders");
+  it("rejects shipping a PENDING order", () => {
+    expect(() =>
+      assertOrderTransition(
+        "ORD-2026-0181",
+        "PENDING",
+        ["PROCESSING"],
+        "SHIPPED",
+      ),
+    ).toThrow(OrderDomainError);
 
-    confirmOrder("ORD-2026-0181");
-
-    const cancelledOrder = cancelOrder("ORD-2026-0181");
-
-    expect(cancelledOrder.status).toBe("CANCELLED");
-  });
-
-  it("rejects shipping a PENDING order", async () => {
-    const { OrderDomainError, shipOrder } = await import("@/lib/orders");
-
-    expect(() => shipOrder("ORD-2026-0181")).toThrow(OrderDomainError);
-
-    expect(() => shipOrder("ORD-2026-0181")).toThrow(
-      "Order ORD-2026-0181 cannot transition from PENDING to SHIPPED.",
-    );
+    expect(() =>
+      assertOrderTransition(
+        "ORD-2026-0181",
+        "PENDING",
+        ["PROCESSING"],
+        "SHIPPED",
+      ),
+    ).toThrow("Order ORD-2026-0181 cannot transition from PENDING to SHIPPED.");
   });
 });
