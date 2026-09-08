@@ -7,16 +7,41 @@ export default defineConfig({
 
   forbidOnly: Boolean(process.env.CI),
 
-  retries: process.env.CI ? 2 : 0,
+  /*
+   * One retry is enough to expose genuine
+   * flakiness in CI without masking unstable
+   * tests behind multiple retries.
+   */
+  retries: process.env.CI ? 1 : 0,
 
+  /*
+   * E2E tests mutate shared commerce state,
+   * so keep execution sequential.
+   */
   workers: 1,
 
-  reporter: process.env.CI ? [["github"], ["list"]] : "list",
+  reporter: process.env.CI
+    ? [
+        ["github"],
+        ["list"],
+        [
+          "html",
+          {
+            open: "never",
+          },
+        ],
+      ]
+    : "list",
 
   use: {
     baseURL: "http://localhost:3024",
 
-    trace: "on-first-retry",
+    /*
+     * Retain traces for failed attempts so
+     * CI artifacts contain the request,
+     * navigation, and DOM timeline.
+     */
+    trace: "retain-on-failure",
 
     screenshot: "only-on-failure",
 

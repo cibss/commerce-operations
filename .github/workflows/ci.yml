@@ -2,10 +2,19 @@ name: CI
 
 on:
   pull_request:
+    branches:
+      - main
+
   push:
     branches:
       - main
-      - staging
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/commerce_operations_ci
@@ -16,16 +25,20 @@ jobs:
   quality:
     name: Quality
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     services:
       postgres:
         image: postgres:16-alpine
+
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: commerce_operations_ci
+
         ports:
           - 5432:5432
+
         options: >-
           --health-cmd "pg_isready -U postgres -d commerce_operations_ci"
           --health-interval 10s
@@ -34,10 +47,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version-file: ".nvmrc"
           cache: npm
@@ -53,8 +66,8 @@ jobs:
       - name: Apply database migrations
         run: npm run db:migrate --workspace=@commerce/api
 
-      - name: Seed test database
-        run: npm run db:seed --workspace=@commerce/api
+      - name: Reset and verify database
+        run: npm run db:reset:verify --workspace=@commerce/api
 
       - name: Lint
         run: npm run lint
@@ -71,16 +84,20 @@ jobs:
   e2e:
     name: End-to-End
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     services:
       postgres:
         image: postgres:16-alpine
+
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: commerce_operations_ci
+
         ports:
           - 5432:5432
+
         options: >-
           --health-cmd "pg_isready -U postgres -d commerce_operations_ci"
           --health-interval 10s
@@ -89,10 +106,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version-file: ".nvmrc"
           cache: npm
@@ -108,8 +125,8 @@ jobs:
       - name: Apply database migrations
         run: npm run db:migrate --workspace=@commerce/api
 
-      - name: Seed test database
-        run: npm run db:seed --workspace=@commerce/api
+      - name: Reset and verify database
+        run: npm run db:reset:verify --workspace=@commerce/api
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
@@ -122,5 +139,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-test-results
-          path: test-results/
+          path: |
+            test-results/
+            playwright-report/
           retention-days: 7
+          if-no-files-found: ignore

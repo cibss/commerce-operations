@@ -4,6 +4,16 @@ test.describe("quote-to-order workflow", () => {
   test("creates, approves, converts, and fulfills an order across microfrontends", async ({
     page,
   }) => {
+    /*
+     * This is the longest E2E journey in the suite.
+     * It crosses multiple microfrontends and performs
+     * several persistent database mutations.
+     *
+     * Keep the timeout scoped to this test instead of
+     * increasing the timeout for every Playwright test.
+     */
+    test.setTimeout(60_000);
+
     await page.goto("/quotations");
 
     await expect(
@@ -48,6 +58,12 @@ test.describe("quote-to-order workflow", () => {
 
     expect(quotationId).toBeTruthy();
 
+    if (!quotationId) {
+      throw new Error(
+        "Quotation ID was not found after creating the quotation.",
+      );
+    }
+
     await expect(
       page.getByRole("button", {
         name: "Send quotation",
@@ -72,33 +88,47 @@ test.describe("quote-to-order workflow", () => {
       })
       .click();
 
-    await expect(
-      page.getByRole("button", {
-        name: /Convert to order/i,
+    const convertButton = page.getByRole("button", {
+      name: /Convert to order/i,
+    });
+
+    await expect(convertButton).toBeVisible();
+
+    /*
+     * Start waiting for navigation BEFORE clicking.
+     *
+     * We intentionally synchronize with the user-visible
+     * behavior instead of coupling the E2E test to the
+     * internal Commerce API request URL.
+     */
+    await Promise.all([
+      page.waitForURL(/\/orders\/ORD-\d{4}-\d{4}$/, {
+        timeout: 20_000,
+        waitUntil: "commit",
       }),
-    ).toBeVisible();
 
-    await page
-      .getByRole("button", {
-        name: /Convert to order/i,
-      })
-      .click();
-
-    await expect(page).toHaveURL(/\/orders\/ORD-\d{4}-\d{4}$/);
+      convertButton.click(),
+    ]);
 
     const orderId = page.url().split("/").pop();
 
     expect(orderId).toBeTruthy();
 
+    if (!orderId) {
+      throw new Error("Order ID was not found after converting the quotation.");
+    }
+
+    expect(orderId).toMatch(/^ORD-\d{4}-\d{4}$/);
+
     await expect(
       page.getByRole("heading", {
-        name: orderId!,
+        name: orderId,
       }),
     ).toBeVisible();
 
     await expect(
       page
-        .getByText(quotationId!, {
+        .getByText(quotationId, {
           exact: true,
         })
         .first(),
