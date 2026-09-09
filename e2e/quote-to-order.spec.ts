@@ -1,20 +1,14 @@
 import { expect, test } from "@playwright/test";
 
+const COMMERCE_BASE_PATH = "/work/commerce-operations";
+
 test.describe("quote-to-order workflow", () => {
   test("creates, approves, converts, and fulfills an order across microfrontends", async ({
     page,
   }) => {
-    /*
-     * This is the longest E2E journey in the suite.
-     * It crosses multiple microfrontends and performs
-     * several persistent database mutations.
-     *
-     * Keep the timeout scoped to this test instead of
-     * increasing the timeout for every Playwright test.
-     */
     test.setTimeout(60_000);
 
-    await page.goto("/quotations");
+    await page.goto(`${COMMERCE_BASE_PATH}/quotations`);
 
     await expect(
       page.getByRole("heading", {
@@ -52,7 +46,9 @@ test.describe("quote-to-order workflow", () => {
       })
       .click();
 
-    await expect(page).toHaveURL(/\/quotations\/QT-\d{4}-\d{4}$/);
+    await expect(page).toHaveURL(
+      /\/work\/commerce-operations\/quotations\/QT-\d{4}-\d{4}$/,
+    );
 
     const quotationId = page.url().split("/").pop();
 
@@ -94,15 +90,8 @@ test.describe("quote-to-order workflow", () => {
 
     await expect(convertButton).toBeVisible();
 
-    /*
-     * Start waiting for navigation BEFORE clicking.
-     *
-     * We intentionally synchronize with the user-visible
-     * behavior instead of coupling the E2E test to the
-     * internal Commerce API request URL.
-     */
     await Promise.all([
-      page.waitForURL(/\/orders\/ORD-\d{4}-\d{4}$/, {
+      page.waitForURL(/\/work\/commerce-operations\/orders\/ORD-\d{4}-\d{4}$/, {
         timeout: 20_000,
         waitUntil: "commit",
       }),

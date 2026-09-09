@@ -39,20 +39,20 @@ function getCommercePlatformUrl() {
     throw new Error("Missing COMMERCE_PLATFORM_URL environment variable.");
   }
 
-  return url.replace(/\/$/, "");
+  return url.replace(/\/+$/, "");
+}
+
+function getQuotationUrl(quotationId: string) {
+  return `${getCommercePlatformUrl()}/quotations/${quotationId}`;
 }
 
 export async function createQuotationAction(formData: FormData) {
   const customerId = getString(formData, "customerId");
-
   const sku = getString(formData, "sku");
-
   const itemName = getString(formData, "itemName");
 
   const quantity = getNumber(formData, "quantity");
-
   const unitPrice = getNumber(formData, "unitPrice");
-
   const discount = getNumber(formData, "discount");
 
   let quotationId: string;
@@ -76,12 +76,12 @@ export async function createQuotationAction(formData: FormData) {
   } catch (error) {
     const message = encodeURIComponent(getErrorMessage(error));
 
-    redirect(`/quotations/new?error=${message}`);
+    redirect(`${getCommercePlatformUrl()}/quotations/new?error=${message}`);
   }
 
   revalidatePath("/quotations");
 
-  redirect(`/quotations/${quotationId}`);
+  redirect(getQuotationUrl(quotationId));
 }
 
 async function runQuotationTransition(
@@ -93,14 +93,13 @@ async function runQuotationTransition(
   } catch (error) {
     const message = encodeURIComponent(getErrorMessage(error));
 
-    redirect(`/quotations/${quotationId}?error=${message}`);
+    redirect(`${getQuotationUrl(quotationId)}?error=${message}`);
   }
 
   revalidatePath("/quotations");
-
   revalidatePath(`/quotations/${quotationId}`);
 
-  redirect(`/quotations/${quotationId}`);
+  redirect(getQuotationUrl(quotationId));
 }
 
 export async function sendQuotationAction(formData: FormData) {
@@ -133,11 +132,10 @@ export async function convertQuotationAction(formData: FormData) {
   } catch (error) {
     const message = encodeURIComponent(getErrorMessage(error));
 
-    redirect(`/quotations/${quotationId}?error=${message}`);
+    redirect(`${getQuotationUrl(quotationId)}?error=${message}`);
   }
 
   revalidatePath("/quotations");
-
   revalidatePath(`/quotations/${quotationId}`);
 
   redirect(`${getCommercePlatformUrl()}/orders/${orderId}`);

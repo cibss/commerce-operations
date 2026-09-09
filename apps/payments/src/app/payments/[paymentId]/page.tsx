@@ -1,5 +1,5 @@
+import { createCommerceHref } from "@commerce/platform-ui";
 import { PageHeader, Panel, PanelHeader, buttonClassName } from "@commerce/ui";
-import { Link as MicrofrontendLink } from "@vercel/microfrontends/next/client";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -135,7 +135,7 @@ export default async function PaymentDetailPage({
                 Related order
               </p>
 
-              <p className="mt-3 text-sm leading-6 text-slate-600 font-bold font-mono">
+              <p className="mt-3 text-sm font-bold font-mono leading-6 text-slate-600">
                 {payment.orderId}
               </p>
 
@@ -143,12 +143,12 @@ export default async function PaymentDetailPage({
                 This payment is associated with the following customer order.
               </p>
 
-              <MicrofrontendLink
-                href={`/orders/${payment.orderId}`}
-                className="mt-4 inline-flex  text-sm font-bold text-indigo-600 hover:text-indigo-700"
+              <a
+                href={createCommerceHref(`/orders/${payment.orderId}`)}
+                className="mt-4 inline-flex text-sm font-bold text-indigo-600 hover:text-indigo-700"
               >
                 View order →
-              </MicrofrontendLink>
+              </a>
             </div>
           </Panel>
 

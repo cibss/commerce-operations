@@ -1,3 +1,4 @@
+import { createCommerceHref } from "@commerce/platform-ui";
 import {
   Badge,
   PageHeader,
@@ -7,7 +8,6 @@ import {
   buttonClassName,
   type ProgressStep,
 } from "@commerce/ui";
-import { Link as MicrofrontendLink } from "@vercel/microfrontends/next/client";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -126,12 +126,14 @@ export default async function QuotationDetailPage({
             ) : null}
 
             {quotation.status === "CONVERTED" && quotation.convertedOrderId ? (
-              <MicrofrontendLink
-                href={`/orders/${quotation.convertedOrderId}`}
+              <a
+                href={createCommerceHref(
+                  `/orders/${quotation.convertedOrderId}`,
+                )}
                 className={buttonClassName()}
               >
                 View order →
-              </MicrofrontendLink>
+              </a>
             ) : null}
           </>
         }
@@ -250,19 +252,21 @@ export default async function QuotationDetailPage({
 
                 <p className="mt-2 text-sm leading-6 text-slate-600">
                   This quotation was converted into <br />
-                  <span className="mt-3 text-sm leading-6 text-slate-600 font-bold font-mono">
+                  <span className="mt-3 text-sm font-bold font-mono leading-6 text-slate-600">
                     {quotation.convertedOrderId}
                   </span>
                   <br />
                   and is now being processed as an order.
                 </p>
 
-                <MicrofrontendLink
-                  href={`/orders/${quotation.convertedOrderId}`}
+                <a
+                  href={createCommerceHref(
+                    `/orders/${quotation.convertedOrderId}`,
+                  )}
                   className="mt-4 inline-flex text-sm font-bold text-indigo-600 hover:text-indigo-700"
                 >
                   View order →
-                </MicrofrontendLink>
+                </a>
               </div>
             </Panel>
           ) : null}

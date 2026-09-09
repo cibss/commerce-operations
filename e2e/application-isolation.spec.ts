@@ -1,8 +1,10 @@
 import { expect, test } from "@playwright/test";
 
+const COMMERCE_BASE_PATH = "/work/commerce-operations";
+
 test.describe("application isolation", () => {
   test("quotations can run as a standalone application", async ({ page }) => {
-    await page.goto("http://localhost:3001/quotations");
+    await page.goto(`http://localhost:3001${COMMERCE_BASE_PATH}/quotations`);
 
     await expect(
       page.getByRole("heading", {
@@ -12,7 +14,7 @@ test.describe("application isolation", () => {
   });
 
   test("orders can run as a standalone application", async ({ page }) => {
-    await page.goto("http://localhost:3002/orders");
+    await page.goto(`http://localhost:3002${COMMERCE_BASE_PATH}/orders`);
 
     await expect(
       page.getByRole("heading", {
@@ -22,7 +24,7 @@ test.describe("application isolation", () => {
   });
 
   test("customers can run as a standalone application", async ({ page }) => {
-    await page.goto("http://localhost:3004/customers");
+    await page.goto(`http://localhost:3004${COMMERCE_BASE_PATH}/customers`);
 
     await expect(
       page.getByRole("heading", {
@@ -32,7 +34,7 @@ test.describe("application isolation", () => {
   });
 
   test("payments can run as a standalone application", async ({ page }) => {
-    await page.goto("http://localhost:3005/payments");
+    await page.goto(`http://localhost:3005${COMMERCE_BASE_PATH}/payments`);
 
     await expect(
       page.getByRole("heading", {

@@ -1,5 +1,6 @@
-import { Link } from "@vercel/microfrontends/next/client";
 import type { ReactNode } from "react";
+
+export const COMMERCE_BASE_PATH = "/work/commerce-operations";
 
 export type CommerceSection =
   | "home"
@@ -62,6 +63,10 @@ function createHref(basePath: string, path: string) {
   }
 
   return `${normalized}${path}`;
+}
+
+export function createCommerceHref(path = "/") {
+  return createHref(COMMERCE_BASE_PATH, path);
 }
 
 function NavIcon({ section }: NavIconProps) {
@@ -157,13 +162,13 @@ function NavIcon({ section }: NavIconProps) {
 export function CommerceShell({
   activeSection,
   children,
-  basePath = "",
+  basePath = COMMERCE_BASE_PATH,
 }: CommerceShellProps) {
   return (
     <div className="min-h-screen lg:flex">
       <aside className="hidden w-[250px] shrink-0 border-r border-slate-200/80 bg-white lg:flex lg:flex-col">
         <div className="flex h-[76px] items-center border-b border-slate-100 px-5">
-          <Link
+          <a
             href={createHref(basePath, "/")}
             className="flex items-center gap-3"
           >
@@ -180,7 +185,7 @@ export function CommerceShell({
                 Operations Platform
               </p>
             </div>
-          </Link>
+          </a>
         </div>
 
         <div className="flex-1 px-3 py-5">
@@ -193,7 +198,7 @@ export function CommerceShell({
               const active = item.section === activeSection;
 
               return (
-                <Link
+                <a
                   key={item.path}
                   href={createHref(basePath, item.path)}
                   className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
@@ -213,7 +218,7 @@ export function CommerceShell({
                   {active ? (
                     <span className="ml-auto h-1.5 w-1.5 rounded-full bg-indigo-500" />
                   ) : null}
-                </Link>
+                </a>
               );
             })}
           </nav>
@@ -285,7 +290,7 @@ export function CommerceShell({
 
           <nav className="flex gap-1 overflow-x-auto border-t border-slate-100 px-3 py-2">
             {navigation.map((item) => (
-              <Link
+              <a
                 key={item.path}
                 href={createHref(basePath, item.path)}
                 className={`whitespace-nowrap rounded-lg px-3 py-2 text-xs font-semibold ${
@@ -295,7 +300,7 @@ export function CommerceShell({
                 }`}
               >
                 {item.label}
-              </Link>
+              </a>
             ))}
           </nav>
         </header>

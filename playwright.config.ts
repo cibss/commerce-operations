@@ -7,17 +7,8 @@ export default defineConfig({
 
   forbidOnly: Boolean(process.env.CI),
 
-  /*
-   * One retry is enough to expose genuine
-   * flakiness in CI without masking unstable
-   * tests behind multiple retries.
-   */
   retries: process.env.CI ? 1 : 0,
 
-  /*
-   * E2E tests mutate shared commerce state,
-   * so keep execution sequential.
-   */
   workers: 1,
 
   reporter: process.env.CI
@@ -34,13 +25,8 @@ export default defineConfig({
     : "list",
 
   use: {
-    baseURL: "http://localhost:3024",
+    baseURL: "http://localhost:3000",
 
-    /*
-     * Retain traces for failed attempts so
-     * CI artifacts contain the request,
-     * navigation, and DOM timeline.
-     */
     trace: "retain-on-failure",
 
     screenshot: "only-on-failure",
@@ -61,7 +47,7 @@ export default defineConfig({
   webServer: {
     command: "npm run dev",
 
-    url: "http://localhost:3024",
+    url: "http://localhost:3000/work/commerce-operations/quotations",
 
     reuseExistingServer: !process.env.CI,
 

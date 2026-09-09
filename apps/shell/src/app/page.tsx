@@ -1,6 +1,5 @@
-import { CommerceShell } from "@commerce/platform-ui";
+import { CommerceShell, createCommerceHref } from "@commerce/platform-ui";
 import { Badge, PageHeader, Panel, PanelHeader, StatCard } from "@commerce/ui";
-import { Link } from "@vercel/microfrontends/next/client";
 
 const domains = [
   {
@@ -151,9 +150,9 @@ export default function Home() {
 
         <div className="grid gap-4 lg:grid-cols-2">
           {domains.map((domain) => (
-            <Link
+            <a
               key={domain.href}
-              href={domain.href}
+              href={createCommerceHref(domain.href)}
               className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.03),0_8px_30px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-[0_12px_40px_rgba(79,70,229,0.08)]"
             >
               <div
@@ -201,7 +200,7 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-            </Link>
+            </a>
           ))}
         </div>
       </section>

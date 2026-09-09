@@ -22,8 +22,7 @@
     }
   },
   "scripts": {
-    "dev": "concurrently --kill-others --names shell,quotations,orders,customers,payments,api,proxy \"npm run dev --workspace=@commerce/shell\" \"npm run dev --workspace=@commerce/quotations\" \"npm run dev --workspace=@commerce/orders\" \"npm run dev --workspace=@commerce/customers\" \"npm run dev --workspace=@commerce/payments\" \"npm run dev --workspace=@commerce/api\" \"npm run dev:proxy\"",
-    "dev:proxy": "microfrontends proxy apps/shell/microfrontends.json --local-apps commerce-operations-shell commerce-operations-quotations commerce-operations-orders commerce-operations-customers commerce-operations-payments",
+    "dev": "concurrently --kill-others --names shell,quotations,orders,customers,payments,api \"npm run dev --workspace=@commerce/shell\" \"npm run dev --workspace=@commerce/quotations\" \"npm run dev --workspace=@commerce/orders\" \"npm run dev --workspace=@commerce/customers\" \"npm run dev --workspace=@commerce/payments\" \"npm run dev --workspace=@commerce/api\"",
     "test": "npm run test:unit && npm run test:e2e",
     "test:unit": "vitest run --config apps/commerce-api/vitest.config.mts",
     "test:unit:watch": "vitest --config apps/commerce-api/vitest.config.mts",
@@ -37,7 +36,6 @@
   "devDependencies": {
     "@playwright/test": "1.63.0",
     "@types/node": "^24",
-    "@vercel/microfrontends": "2.4.0",
     "concurrently": "10.0.5",
     "turbo": "2.10.12",
     "vitest": "5.0.0"

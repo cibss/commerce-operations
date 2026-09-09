@@ -1,10 +1,12 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("microfrontend navigation", () => {
+const COMMERCE_BASE_PATH = "/work/commerce-operations";
+
+test.describe("multi-zone navigation", () => {
   test("keeps a unified platform URL while navigating between domains", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto(COMMERCE_BASE_PATH);
 
     await expect(
       page.getByRole("heading", {
@@ -19,7 +21,11 @@ test.describe("microfrontend navigation", () => {
       .first()
       .click();
 
-    await expect(page).toHaveURL(/localhost:3024\/quotations$/);
+    await expect(page).toHaveURL(
+      new RegExp(
+        `localhost:3000${COMMERCE_BASE_PATH.replaceAll("/", "\\/")}\\/quotations$`,
+      ),
+    );
 
     await expect(
       page.getByRole("heading", {
@@ -34,7 +40,11 @@ test.describe("microfrontend navigation", () => {
       .first()
       .click();
 
-    await expect(page).toHaveURL(/localhost:3024\/customers$/);
+    await expect(page).toHaveURL(
+      new RegExp(
+        `localhost:3000${COMMERCE_BASE_PATH.replaceAll("/", "\\/")}\\/customers$`,
+      ),
+    );
 
     await expect(
       page.getByRole("heading", {
@@ -49,7 +59,11 @@ test.describe("microfrontend navigation", () => {
       .first()
       .click();
 
-    await expect(page).toHaveURL(/localhost:3024\/payments$/);
+    await expect(page).toHaveURL(
+      new RegExp(
+        `localhost:3000${COMMERCE_BASE_PATH.replaceAll("/", "\\/")}\\/payments$`,
+      ),
+    );
 
     await expect(
       page.getByRole("heading", {
@@ -64,7 +78,11 @@ test.describe("microfrontend navigation", () => {
       .first()
       .click();
 
-    await expect(page).toHaveURL(/localhost:3024\/orders$/);
+    await expect(page).toHaveURL(
+      new RegExp(
+        `localhost:3000${COMMERCE_BASE_PATH.replaceAll("/", "\\/")}\\/orders$`,
+      ),
+    );
 
     await expect(
       page.getByRole("heading", {

@@ -19,7 +19,7 @@ concurrency:
 env:
   DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/commerce_operations_ci
   COMMERCE_API_ORIGIN: http://localhost:3003
-  COMMERCE_PLATFORM_URL: http://localhost:3024
+  COMMERCE_PLATFORM_URL: http://localhost:3000/work/commerce-operations
 
 jobs:
   quality:

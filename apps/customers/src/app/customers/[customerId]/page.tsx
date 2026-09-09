@@ -1,5 +1,5 @@
+import { createCommerceHref } from "@commerce/platform-ui";
 import { PageHeader, Panel, PanelHeader, StatCard } from "@commerce/ui";
-import { Link as MicrofrontendLink } from "@vercel/microfrontends/next/client";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -108,9 +108,9 @@ export default async function CustomerDetailPage({
 
             <div className="divide-y divide-slate-100">
               {quotations.map((quotation) => (
-                <MicrofrontendLink
+                <a
                   key={quotation.id}
-                  href={`/quotations/${quotation.id}`}
+                  href={createCommerceHref(`/quotations/${quotation.id}`)}
                   className="group flex items-center justify-between gap-6 px-6 py-4 transition hover:bg-indigo-50/30"
                 >
                   <div>
@@ -126,7 +126,7 @@ export default async function CustomerDetailPage({
                   <p className="text-sm font-semibold text-slate-900">
                     {formatCurrency(quotation.total, quotation.currency)}
                   </p>
-                </MicrofrontendLink>
+                </a>
               ))}
             </div>
           </Panel>
@@ -139,9 +139,9 @@ export default async function CustomerDetailPage({
 
             <div className="divide-y divide-slate-100">
               {orders.map((order) => (
-                <MicrofrontendLink
+                <a
                   key={order.id}
-                  href={`/orders/${order.id}`}
+                  href={createCommerceHref(`/orders/${order.id}`)}
                   className="group flex items-center justify-between gap-6 px-6 py-4 hover:bg-indigo-50/30"
                 >
                   <div>
@@ -157,7 +157,7 @@ export default async function CustomerDetailPage({
                   <p className="text-sm font-semibold text-slate-900">
                     {formatCurrency(order.total, order.currency)}
                   </p>
-                </MicrofrontendLink>
+                </a>
               ))}
             </div>
           </Panel>
