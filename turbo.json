@@ -5,7 +5,15 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**"],
-      "env": ["DATABASE_URL", "COMMERCE_API_ORIGIN", "COMMERCE_PLATFORM_URL"]
+      "env": [
+        "DATABASE_URL",
+        "COMMERCE_API_ORIGIN",
+        "COMMERCE_PLATFORM_URL",
+        "COMMERCE_QUOTATIONS_ORIGIN",
+        "COMMERCE_ORDERS_ORIGIN",
+        "COMMERCE_CUSTOMERS_ORIGIN",
+        "COMMERCE_PAYMENTS_ORIGIN"
+      ]
     },
     "dev": {
       "cache": false,
