@@ -1,4 +1,4 @@
-import type { Order } from "@/lib/order";
+import type { Order, OrderPayment } from "@/lib/order";
 
 type ApiSuccess<T> = {
   data: T;
@@ -8,6 +8,11 @@ type ApiFailure = {
   error?: {
     message?: string;
   };
+};
+
+export type ConfirmOrderResult = {
+  order: Order;
+  paymentId: string;
 };
 
 export class CommerceApiError extends Error {
@@ -72,8 +77,12 @@ export async function getOrder(orderId: string) {
   }
 }
 
+export function getOrderPayment(orderId: string) {
+  return request<OrderPayment | null>(`/api/payments/by-order/${orderId}`);
+}
+
 export function confirmOrder(orderId: string) {
-  return request<Order>(`/api/orders/${orderId}/confirm`, {
+  return request<ConfirmOrderResult>(`/api/orders/${orderId}/confirm`, {
     method: "POST",
   });
 }

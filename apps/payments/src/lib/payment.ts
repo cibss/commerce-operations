@@ -1,4 +1,9 @@
-export type PaymentStatus = "PENDING" | "PAID" | "FAILED" | "REFUNDED";
+export type PaymentStatus =
+  | "PENDING"
+  | "PAID"
+  | "FAILED"
+  | "REFUNDED"
+  | "CANCELLED";
 
 export type PaymentMethod = "BANK_TRANSFER" | "VIRTUAL_ACCOUNT" | "CARD";
 

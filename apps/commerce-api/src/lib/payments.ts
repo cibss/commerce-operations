@@ -1,4 +1,9 @@
-export type PaymentStatus = "PENDING" | "PAID" | "FAILED" | "REFUNDED";
+export type PaymentStatus =
+  | "PENDING"
+  | "PAID"
+  | "FAILED"
+  | "REFUNDED"
+  | "CANCELLED";
 
 export type PaymentMethod = "BANK_TRANSFER" | "VIRTUAL_ACCOUNT" | "CARD";
 
@@ -16,6 +21,12 @@ export type Payment = {
   updatedAt: string;
   paidAt: string | null;
   refundedAt: string | null;
+};
+
+export type CreatePaymentForOrderInput = {
+  orderId: string;
+  amount: number;
+  currency: Currency;
 };
 
 export class PaymentDomainError extends Error {

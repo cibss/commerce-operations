@@ -32,6 +32,29 @@ export type Order = {
   updatedAt: string;
 };
 
+export type OrderPaymentStatus =
+  | "PENDING"
+  | "PAID"
+  | "FAILED"
+  | "REFUNDED"
+  | "CANCELLED";
+
+export type OrderPaymentMethod = "BANK_TRANSFER" | "VIRTUAL_ACCOUNT" | "CARD";
+
+export type OrderPayment = {
+  id: string;
+  orderId: string;
+  amount: number;
+  currency: Currency;
+  method: OrderPaymentMethod;
+  status: OrderPaymentStatus;
+  reference: string;
+  createdAt: string;
+  updatedAt: string;
+  paidAt: string | null;
+  refundedAt: string | null;
+};
+
 export function formatCurrency(amount: number, currency: Currency) {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",

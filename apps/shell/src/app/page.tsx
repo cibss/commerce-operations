@@ -15,7 +15,7 @@ const domains = [
   {
     title: "Orders",
     description:
-      "Manage order confirmation, fulfillment, shipping, and completion after commercial handover.",
+      "Manage confirmed customer orders through payment clearance, fulfillment, shipping, and completion.",
     href: "/orders",
     ownership: "Order Operations",
     accent: "from-blue-500 to-cyan-500",
@@ -35,7 +35,7 @@ const domains = [
   {
     title: "Payments",
     description:
-      "Monitor payment settlement, failed transactions, completed payments, and refunds.",
+      "Track payment settlement for confirmed orders, including pending, paid, failed, and refunded transactions.",
     href: "/payments",
     ownership: "Finance Operations",
     accent: "from-emerald-500 to-teal-500",
@@ -48,8 +48,8 @@ const workflow = [
   "Quotation",
   "Approval",
   "Order",
-  "Fulfillment",
   "Payment",
+  "Fulfillment",
   "Completed",
 ];
 
@@ -59,7 +59,7 @@ export default function Home() {
       <PageHeader
         eyebrow="Operations workspace"
         title="Commerce Operations"
-        description="Coordinate the B2B quote-to-cash lifecycle across sales, customer, fulfillment, and finance operations."
+        description="Coordinate the B2B quote-to-cash lifecycle across sales, customer, finance, and fulfillment operations."
       >
         <div className="flex flex-wrap gap-2">
           <Badge variant="accent">Microfrontend architecture</Badge>
@@ -94,8 +94,8 @@ export default function Home() {
 
         <StatCard
           label="Hero flow"
-          value="Quote → Order"
-          hint="Cross-MFE workflow"
+          value="Quote → Cash"
+          hint="Cross-zone workflow"
           tone="amber"
         />
       </div>
@@ -103,7 +103,7 @@ export default function Home() {
       <Panel className="mt-6">
         <PanelHeader
           title="Quote-to-cash workflow"
-          description="Track a commercial opportunity from initial quotation through fulfillment and payment settlement."
+          description="Track a commercial opportunity from quotation and approval through payment clearance, fulfillment, and completion."
           action={<Badge variant="success">Operational</Badge>}
         />
 

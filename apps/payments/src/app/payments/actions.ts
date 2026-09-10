@@ -40,6 +40,10 @@ function getPaymentUrl(paymentId: string) {
   return `${getCommercePlatformUrl()}/payments/${paymentId}`;
 }
 
+function getOrderUrl(orderId: string) {
+  return `${getCommercePlatformUrl()}/orders/${orderId}`;
+}
+
 async function runPaymentTransition(
   paymentId: string,
   transition: () => Promise<unknown>,
@@ -61,7 +65,22 @@ async function runPaymentTransition(
 export async function markPaymentPaidAction(formData: FormData) {
   const paymentId = getString(formData, "paymentId");
 
-  await runPaymentTransition(paymentId, () => markPaymentPaid(paymentId));
+  let orderId: string;
+
+  try {
+    const payment = await markPaymentPaid(paymentId);
+
+    orderId = payment.orderId;
+  } catch (error) {
+    const message = encodeURIComponent(getErrorMessage(error));
+
+    redirect(`${getPaymentUrl(paymentId)}?error=${message}`);
+  }
+
+  revalidatePath("/payments");
+  revalidatePath(`/payments/${paymentId}`);
+
+  redirect(getOrderUrl(orderId));
 }
 
 export async function markPaymentFailedAction(formData: FormData) {

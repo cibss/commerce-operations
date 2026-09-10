@@ -237,6 +237,33 @@ async function insertInTransaction(
   }
 }
 
+async function updateStatusInTransaction(
+  transaction: DatabaseTransaction,
+  orderId: string,
+  expectedStatuses: OrderStatus[],
+  nextStatus: OrderStatus,
+  updatedAt: string,
+): Promise<boolean> {
+  if (expectedStatuses.length === 0) {
+    return false;
+  }
+
+  const result = await transaction
+    .update(orders)
+    .set({
+      status: nextStatus,
+      updatedAt: new Date(updatedAt),
+    })
+    .where(
+      and(eq(orders.id, orderId), inArray(orders.status, expectedStatuses)),
+    )
+    .returning({
+      id: orders.id,
+    });
+
+  return result.length > 0;
+}
+
 async function updateStatus(
   orderId: string,
   expectedStatuses: OrderStatus[],
@@ -272,5 +299,6 @@ export const OrderRepository = {
   findBySourceQuotationIdInTransaction,
   allocateIdentityInTransaction,
   insertInTransaction,
+  updateStatusInTransaction,
   updateStatus,
 };
