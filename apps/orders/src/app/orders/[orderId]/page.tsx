@@ -3,7 +3,7 @@ import {
   Panel,
   PanelHeader,
   ProgressSteps,
-  buttonClassName,
+  SubmitButton,
   type ProgressStep,
 } from "@commerce/ui";
 import Link from "next/link";
@@ -90,9 +90,9 @@ export default async function OrderDetailPage({
               <form action={cancelOrderAction}>
                 <input type="hidden" name="orderId" value={order.id} />
 
-                <button className={buttonClassName("danger")}>
+                <SubmitButton variant="danger" pendingLabel="Cancelling...">
                   Cancel order
-                </button>
+                </SubmitButton>
               </form>
             )}
 
@@ -100,7 +100,9 @@ export default async function OrderDetailPage({
               <form action={confirmOrderAction}>
                 <input type="hidden" name="orderId" value={order.id} />
 
-                <button className={buttonClassName()}>Confirm order</button>
+                <SubmitButton pendingLabel="Confirming...">
+                  Confirm order
+                </SubmitButton>
               </form>
             ) : null}
 
@@ -108,7 +110,9 @@ export default async function OrderDetailPage({
               <form action={processOrderAction}>
                 <input type="hidden" name="orderId" value={order.id} />
 
-                <button className={buttonClassName()}>Start processing</button>
+                <SubmitButton pendingLabel="Starting...">
+                  Start processing
+                </SubmitButton>
               </form>
             ) : null}
 
@@ -116,7 +120,9 @@ export default async function OrderDetailPage({
               <form action={shipOrderAction}>
                 <input type="hidden" name="orderId" value={order.id} />
 
-                <button className={buttonClassName()}>Mark shipped</button>
+                <SubmitButton pendingLabel="Shipping...">
+                  Mark shipped
+                </SubmitButton>
               </form>
             ) : null}
 
@@ -124,7 +130,9 @@ export default async function OrderDetailPage({
               <form action={completeOrderAction}>
                 <input type="hidden" name="orderId" value={order.id} />
 
-                <button className={buttonClassName()}>Complete order</button>
+                <SubmitButton pendingLabel="Completing...">
+                  Complete order
+                </SubmitButton>
               </form>
             ) : null}
           </>

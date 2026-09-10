@@ -1,4 +1,10 @@
-import { PageHeader, Panel, PanelHeader, buttonClassName } from "@commerce/ui";
+import {
+  PageHeader,
+  Panel,
+  PanelHeader,
+  SubmitButton,
+  buttonClassName,
+} from "@commerce/ui";
 import Link from "next/link";
 
 import { createQuotationAction } from "@/app/quotations/actions";
@@ -221,12 +227,9 @@ export default async function NewQuotationPage({
               </div>
             </Panel>
 
-            <button
-              type="submit"
-              className={buttonClassName("primary", "md", "w-full")}
-            >
+            <SubmitButton pendingLabel="Creating..." className="w-full">
               Create draft quotation
-            </button>
+            </SubmitButton>
           </div>
         </div>
       </form>

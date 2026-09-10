@@ -1,5 +1,5 @@
 import { createCommerceHref } from "@commerce/platform-ui";
-import { PageHeader, Panel, PanelHeader, buttonClassName } from "@commerce/ui";
+import { PageHeader, Panel, PanelHeader, SubmitButton } from "@commerce/ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -59,15 +59,20 @@ export default async function PaymentDetailPage({
                 <form action={markPaymentFailedAction}>
                   <input type="hidden" name="paymentId" value={payment.id} />
 
-                  <button className={buttonClassName("danger")}>
+                  <SubmitButton
+                    variant="danger"
+                    pendingLabel="Marking failed..."
+                  >
                     Mark failed
-                  </button>
+                  </SubmitButton>
                 </form>
 
                 <form action={markPaymentPaidAction}>
                   <input type="hidden" name="paymentId" value={payment.id} />
 
-                  <button className={buttonClassName()}>Mark as paid</button>
+                  <SubmitButton pendingLabel="Marking paid...">
+                    Mark as paid
+                  </SubmitButton>
                 </form>
               </>
             ) : null}
@@ -76,9 +81,9 @@ export default async function PaymentDetailPage({
               <form action={refundPaymentAction}>
                 <input type="hidden" name="paymentId" value={payment.id} />
 
-                <button className={buttonClassName("secondary")}>
+                <SubmitButton variant="secondary" pendingLabel="Refunding...">
                   Refund payment
-                </button>
+                </SubmitButton>
               </form>
             ) : null}
           </>

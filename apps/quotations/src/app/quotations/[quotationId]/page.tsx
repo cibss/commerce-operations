@@ -5,6 +5,7 @@ import {
   Panel,
   PanelHeader,
   ProgressSteps,
+  SubmitButton,
   buttonClassName,
   type ProgressStep,
 } from "@commerce/ui";
@@ -85,7 +86,9 @@ export default async function QuotationDetailPage({
               <form action={sendQuotationAction}>
                 <input type="hidden" name="quotationId" value={quotation.id} />
 
-                <button className={buttonClassName()}>Send quotation</button>
+                <SubmitButton pendingLabel="Sending...">
+                  Send quotation
+                </SubmitButton>
               </form>
             ) : null}
 
@@ -98,7 +101,9 @@ export default async function QuotationDetailPage({
                     value={quotation.id}
                   />
 
-                  <button className={buttonClassName("danger")}>Reject</button>
+                  <SubmitButton variant="danger" pendingLabel="Rejecting...">
+                    Reject
+                  </SubmitButton>
                 </form>
 
                 <form action={acceptQuotationAction}>
@@ -108,9 +113,9 @@ export default async function QuotationDetailPage({
                     value={quotation.id}
                   />
 
-                  <button className={buttonClassName()}>
+                  <SubmitButton pendingLabel="Accepting...">
                     Accept quotation
-                  </button>
+                  </SubmitButton>
                 </form>
               </>
             ) : null}
@@ -119,9 +124,9 @@ export default async function QuotationDetailPage({
               <form action={convertQuotationAction}>
                 <input type="hidden" name="quotationId" value={quotation.id} />
 
-                <button className={buttonClassName()}>
+                <SubmitButton pendingLabel="Converting...">
                   Convert to order →
-                </button>
+                </SubmitButton>
               </form>
             ) : null}
 
