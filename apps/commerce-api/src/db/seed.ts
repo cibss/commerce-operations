@@ -173,9 +173,9 @@ const orderSeed = [
     discount: 8_000_000,
     total: 160_000_000,
     currency: "IDR",
-    status: "PENDING",
+    status: "CONFIRMED",
     createdAt: new Date("2026-08-27T03:00:00.000Z"),
-    updatedAt: new Date("2026-08-27T03:00:00.000Z"),
+    updatedAt: new Date("2026-08-27T03:15:00.000Z"),
   },
   {
     id: "ORD-2026-0180",
@@ -418,15 +418,10 @@ async function seedDatabase() {
     console.log("");
 
     console.log(`  Customers:       ${customerSeed.length}`);
-
     console.log(`  Quotations:      ${quotationSeed.length}`);
-
     console.log(`  Quotation items: ${quotationItemSeed.length}`);
-
     console.log(`  Orders:          ${orderSeed.length}`);
-
     console.log(`  Order items:     ${orderItemSeed.length}`);
-
     console.log(`  Payments:        ${paymentSeed.length}`);
   } finally {
     await pool.end();

@@ -42,6 +42,10 @@ function getOrderUrl(orderId: string) {
   return `${getCommercePlatformUrl()}/orders/${orderId}`;
 }
 
+function getPaymentUrl(paymentId: string) {
+  return `${getCommercePlatformUrl()}/payments/${paymentId}`;
+}
+
 async function runOrderTransition(
   orderId: string,
   transition: () => Promise<unknown>,
@@ -63,7 +67,22 @@ async function runOrderTransition(
 export async function confirmOrderAction(formData: FormData) {
   const orderId = getString(formData, "orderId");
 
-  await runOrderTransition(orderId, () => confirmOrder(orderId));
+  let paymentId: string;
+
+  try {
+    const result = await confirmOrder(orderId);
+
+    paymentId = result.paymentId;
+  } catch (error) {
+    const message = encodeURIComponent(getErrorMessage(error));
+
+    redirect(`${getOrderUrl(orderId)}?error=${message}`);
+  }
+
+  revalidatePath("/orders");
+  revalidatePath(`/orders/${orderId}`);
+
+  redirect(getPaymentUrl(paymentId));
 }
 
 export async function processOrderAction(formData: FormData) {

@@ -101,9 +101,9 @@ async function verifyPersistence() {
       throw new Error("Expected ORD-2026-0181 to exist.");
     }
 
-    if (order.status !== "PENDING") {
+    if (order.status !== "CONFIRMED") {
       throw new Error(
-        `Expected ORD-2026-0181 to be PENDING, received ${order.status}.`,
+        `Expected ORD-2026-0181 to be CONFIRMED, received ${order.status}.`,
       );
     }
 
@@ -113,9 +113,27 @@ async function verifyPersistence() {
       throw new Error("Expected PAY-2026-0091 to exist.");
     }
 
+    if (payment.orderId !== order.id) {
+      throw new Error(
+        `Expected PAY-2026-0091 to belong to ${order.id}, received ${payment.orderId}.`,
+      );
+    }
+
+    if (payment.amount !== order.total) {
+      throw new Error(
+        `Expected PAY-2026-0091 amount to equal order total ${order.total}, received ${payment.amount}.`,
+      );
+    }
+
     if (payment.status !== "PENDING") {
       throw new Error(
         `Expected PAY-2026-0091 to be PENDING, received ${payment.status}.`,
+      );
+    }
+
+    if (payment.reference !== "INV-2026-0181") {
+      throw new Error(
+        `Expected PAY-2026-0091 reference to be INV-2026-0181, received ${payment.reference}.`,
       );
     }
 

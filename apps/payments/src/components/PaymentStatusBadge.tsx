@@ -11,6 +11,7 @@ const statusVariants: Record<PaymentStatus, BadgeVariant> = {
   PAID: "success",
   FAILED: "danger",
   REFUNDED: "accent",
+  CANCELLED: "neutral",
 };
 
 export function PaymentStatusBadge({ status }: PaymentStatusBadgeProps) {

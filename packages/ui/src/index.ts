@@ -18,3 +18,5 @@ export {
 } from "./ProgressSteps";
 
 export { StatCard } from "./StatCard";
+
+export { SubmitButton } from "./SubmitButton";

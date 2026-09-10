@@ -1,11 +1,9 @@
+import { commerceMetadata } from "@commerce/platform-ui";
 import type { Metadata } from "next";
 
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "Payments | Commerce Operations",
-  description: "Payment operations domain for Commerce Operations.",
-};
+export const metadata: Metadata = commerceMetadata;
 
 export default function RootLayout({
   children,
