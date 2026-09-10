@@ -40,7 +40,6 @@ export default async function QuotationDetailPage({
   searchParams,
 }: QuotationDetailPageProps) {
   const { quotationId } = await params;
-
   const { error } = await searchParams;
 
   const quotation = await getQuotation(quotationId);
@@ -86,7 +85,7 @@ export default async function QuotationDetailPage({
               <form action={sendQuotationAction}>
                 <input type="hidden" name="quotationId" value={quotation.id} />
 
-                <SubmitButton pendingLabel="Sending...">
+                <SubmitButton pendingText="Sending...">
                   Send quotation
                 </SubmitButton>
               </form>
@@ -101,7 +100,7 @@ export default async function QuotationDetailPage({
                     value={quotation.id}
                   />
 
-                  <SubmitButton variant="danger" pendingLabel="Rejecting...">
+                  <SubmitButton variant="danger" pendingText="Rejecting...">
                     Reject
                   </SubmitButton>
                 </form>
@@ -113,7 +112,7 @@ export default async function QuotationDetailPage({
                     value={quotation.id}
                   />
 
-                  <SubmitButton pendingLabel="Accepting...">
+                  <SubmitButton pendingText="Accepting...">
                     Accept quotation
                   </SubmitButton>
                 </form>
@@ -124,7 +123,7 @@ export default async function QuotationDetailPage({
               <form action={convertQuotationAction}>
                 <input type="hidden" name="quotationId" value={quotation.id} />
 
-                <SubmitButton pendingLabel="Converting...">
+                <SubmitButton pendingText="Converting...">
                   Convert to order →
                 </SubmitButton>
               </form>
@@ -173,7 +172,9 @@ export default async function QuotationDetailPage({
         <Panel>
           <PanelHeader
             title="Commercial items"
-            description={`${quotation.items.length} line item${quotation.items.length === 1 ? "" : "s"} included in this proposal.`}
+            description={`${quotation.items.length} line item${
+              quotation.items.length === 1 ? "" : "s"
+            } included in this proposal.`}
           />
 
           <div className="overflow-x-auto">
@@ -256,8 +257,9 @@ export default async function QuotationDetailPage({
                 </h3>
 
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  This quotation was converted into <br />
-                  <span className="mt-3 text-sm font-bold font-mono leading-6 text-slate-600">
+                  This quotation was converted into
+                  <br />
+                  <span className="mt-3 font-mono text-sm font-bold leading-6 text-slate-600">
                     {quotation.convertedOrderId}
                   </span>
                   <br />

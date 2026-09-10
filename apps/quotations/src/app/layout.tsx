@@ -1,11 +1,9 @@
+import { commerceMetadata } from "@commerce/platform-ui";
 import type { Metadata } from "next";
 
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "Quotations | Commerce Operations",
-  description: "Quotation management domain for Commerce Operations.",
-};
+export const metadata: Metadata = commerceMetadata;
 
 export default function RootLayout({
   children,

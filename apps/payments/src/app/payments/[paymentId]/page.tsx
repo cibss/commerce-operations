@@ -28,7 +28,6 @@ export default async function PaymentDetailPage({
   searchParams,
 }: PaymentDetailPageProps) {
   const { paymentId } = await params;
-
   const { error } = await searchParams;
 
   const payment = await getPayment(paymentId);
@@ -61,7 +60,7 @@ export default async function PaymentDetailPage({
 
                   <SubmitButton
                     variant="danger"
-                    pendingLabel="Marking failed..."
+                    pendingText="Marking failed..."
                   >
                     Mark failed
                   </SubmitButton>
@@ -70,7 +69,7 @@ export default async function PaymentDetailPage({
                 <form action={markPaymentPaidAction}>
                   <input type="hidden" name="paymentId" value={payment.id} />
 
-                  <SubmitButton pendingLabel="Marking paid...">
+                  <SubmitButton pendingText="Marking paid...">
                     Mark as paid
                   </SubmitButton>
                 </form>
@@ -81,7 +80,7 @@ export default async function PaymentDetailPage({
               <form action={refundPaymentAction}>
                 <input type="hidden" name="paymentId" value={payment.id} />
 
-                <SubmitButton variant="secondary" pendingLabel="Refunding...">
+                <SubmitButton variant="secondary" pendingText="Refunding...">
                   Refund payment
                 </SubmitButton>
               </form>
@@ -140,7 +139,7 @@ export default async function PaymentDetailPage({
                 Related order
               </p>
 
-              <p className="mt-3 text-sm font-bold font-mono leading-6 text-slate-600">
+              <p className="mt-3 font-mono text-sm font-bold leading-6 text-slate-600">
                 {payment.orderId}
               </p>
 

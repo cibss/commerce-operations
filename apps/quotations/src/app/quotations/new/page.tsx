@@ -227,7 +227,10 @@ export default async function NewQuotationPage({
               </div>
             </Panel>
 
-            <SubmitButton pendingLabel="Creating..." className="w-full">
+            <SubmitButton
+              pendingText="Creating quotation..."
+              className="w-full"
+            >
               Create draft quotation
             </SubmitButton>
           </div>

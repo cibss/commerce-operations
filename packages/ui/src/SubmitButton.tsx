@@ -7,49 +7,22 @@ import { buttonClassName, type ButtonSize, type ButtonVariant } from "./Button";
 
 type SubmitButtonProps = Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
-  "children" | "type"
+  "children" | "className"
 > & {
   children: ReactNode;
-  pendingLabel: ReactNode;
+  pendingText: string;
   variant?: ButtonVariant;
   size?: ButtonSize;
+  className?: string;
 };
-
-function LoadingSpinner() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      className="h-4 w-4 animate-spin"
-      aria-hidden="true"
-    >
-      <circle
-        cx="12"
-        cy="12"
-        r="9"
-        stroke="currentColor"
-        strokeWidth="3"
-        className="opacity-25"
-      />
-
-      <path
-        d="M12 3a9 9 0 0 1 9 9"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-        className="opacity-90"
-      />
-    </svg>
-  );
-}
 
 export function SubmitButton({
   children,
-  pendingLabel,
+  pendingText,
   variant = "primary",
   size = "md",
   className = "",
-  disabled,
+  disabled = false,
   ...props
 }: SubmitButtonProps) {
   const { pending } = useFormStatus();
@@ -62,16 +35,16 @@ export function SubmitButton({
       type="submit"
       disabled={isDisabled}
       aria-busy={pending}
-      className={buttonClassName(variant, size, className)}
+      className={buttonClassName(variant, size, `gap-2 ${className}`)}
     >
       {pending ? (
-        <>
-          <LoadingSpinner />
-          <span>{pendingLabel}</span>
-        </>
-      ) : (
-        children
-      )}
+        <span
+          aria-hidden="true"
+          className="h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent"
+        />
+      ) : null}
+
+      <span>{pending ? pendingText : children}</span>
     </button>
   );
 }

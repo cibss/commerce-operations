@@ -5,7 +5,7 @@ import {
   Panel,
   PanelHeader,
   ProgressSteps,
-  buttonClassName,
+  SubmitButton,
   type BadgeVariant,
   type ProgressStep,
 } from "@commerce/ui";
@@ -141,12 +141,13 @@ export default async function OrderDetailPage({
               <form action={cancelOrderAction}>
                 <input type="hidden" name="orderId" value={order.id} />
 
-                <button
+                <SubmitButton
+                  variant="danger"
+                  pendingText="Cancelling..."
                   disabled={!canCancelOrder}
-                  className={buttonClassName("danger")}
                 >
                   Cancel order
-                </button>
+                </SubmitButton>
               </form>
             )}
 
@@ -154,7 +155,9 @@ export default async function OrderDetailPage({
               <form action={confirmOrderAction}>
                 <input type="hidden" name="orderId" value={order.id} />
 
-                <button className={buttonClassName()}>Confirm order</button>
+                <SubmitButton pendingText="Confirming...">
+                  Confirm order
+                </SubmitButton>
               </form>
             ) : null}
 
@@ -162,17 +165,17 @@ export default async function OrderDetailPage({
               <form action={processOrderAction}>
                 <input type="hidden" name="orderId" value={order.id} />
 
-                <button
+                <SubmitButton
+                  pendingText="Starting..."
                   disabled={!canStartProcessing}
                   title={
                     canStartProcessing
                       ? "Start fulfillment"
                       : processingBlockedMessage
                   }
-                  className={buttonClassName()}
                 >
                   Start processing
-                </button>
+                </SubmitButton>
               </form>
             ) : null}
 
@@ -180,7 +183,9 @@ export default async function OrderDetailPage({
               <form action={shipOrderAction}>
                 <input type="hidden" name="orderId" value={order.id} />
 
-                <button className={buttonClassName()}>Mark shipped</button>
+                <SubmitButton pendingText="Updating...">
+                  Mark shipped
+                </SubmitButton>
               </form>
             ) : null}
 
@@ -188,7 +193,9 @@ export default async function OrderDetailPage({
               <form action={completeOrderAction}>
                 <input type="hidden" name="orderId" value={order.id} />
 
-                <button className={buttonClassName()}>Complete order</button>
+                <SubmitButton pendingText="Completing...">
+                  Complete order
+                </SubmitButton>
               </form>
             ) : null}
           </>
