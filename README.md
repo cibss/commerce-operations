@@ -1,10 +1,14 @@
 # Commerce Operations
 
-A production-style B2B commerce operations workspace built to explore frontend architecture, micro-frontends, transactional workflows, and reliable business-state management.
+[![CI](https://github.com/cibss/commerce-operations/actions/workflows/ci.yml/badge.svg)](https://github.com/cibss/commerce-operations/actions/workflows/ci.yml)
+
+A production-style B2B commerce operations workspace built to demonstrate frontend architecture, micro-frontends, transactional workflows, and reliable business-state management.
 
 The application models an end-to-end quote-to-cash workflow across independently deployed frontend domains.
 
 **Live demo:** https://seibashonia.dev/work/commerce-operations
+
+![Commerce Operations dashboard](./docs/com-ops-dashboard.webp)
 
 ## Overview
 
@@ -78,7 +82,7 @@ Order CONFIRMED
 Payment PENDING
 ```
 
-The order confirmation and payment creation happen as one transactional operation.
+Order confirmation and payment creation happen as one transactional operation.
 
 ### Payment
 
@@ -104,23 +108,17 @@ PENDING
 
 Fulfillment cannot begin until the associated payment has status `PAID`.
 
-```text
-Order CONFIRMED
-+
-Payment PENDING
-↓
-Start processing disabled
-
-Payment PAID
-↓
-Start processing enabled
-```
-
 The same rule is enforced by the backend, so it cannot be bypassed by calling the API directly.
+
+### Order and Payment Workflow
+
+![Order and payment workflow](./docs/com-ops-order.webp)
+
+An order cannot enter fulfillment until its related payment has cleared. This rule is enforced in both the interface and backend service layer.
 
 ### Cancellation
 
-Cancellation also preserves consistency between Order and Payment.
+Cancellation preserves consistency between Order and Payment.
 
 ```text
 Order PENDING
@@ -129,19 +127,27 @@ Order PENDING
 → No payment exists
 ```
 
+For a confirmed order with a pending payment:
+
 ```text
 Order CONFIRMED
 +
 Payment PENDING
-→ Cancel
-→ Order CANCELLED
+↓
+Cancel
+↓
+Order CANCELLED
 +
 Payment CANCELLED
 ```
 
-A confirmed order with a paid payment cannot be cancelled until the payment is refunded.
+A confirmed order with a paid payment cannot be cancelled until the payment has been refunded.
 
 ## Architecture
+
+![Commerce Operations architecture](./docs/architecture.webp)
+
+The platform separates Quotations, Orders, Customers, and Payments into independently deployed Next.js zones, coordinated through a shared shell and Commerce API.
 
 The repository is an npm workspace managed with Turborepo.
 
@@ -165,14 +171,14 @@ commerce-operations
 
 ### Applications
 
-| Application | Responsibility | Local Port |
-| --- | --- | ---: |
-| Shell | Multi-Zone routing and workspace overview | 3000 |
-| Quotations | Quotation and approval workflow | 3001 |
-| Orders | Order and fulfillment workflow | 3002 |
-| Commerce API | REST API and business services | 3003 |
-| Customers | Customer accounts and commercial history | 3004 |
-| Payments | Payment and settlement workflow | 3005 |
+| Application  | Responsibility                            | Local Port |
+| ------------ | ----------------------------------------- | ---------: |
+| Shell        | Multi-Zone routing and workspace overview |       3000 |
+| Quotations   | Quotation and approval workflow           |       3001 |
+| Orders       | Order and fulfillment workflow            |       3002 |
+| Commerce API | REST API and business services            |       3003 |
+| Customers    | Customer accounts and commercial history  |       3004 |
+| Payments     | Payment and settlement workflow           |       3005 |
 
 ### Shared Packages
 
@@ -210,7 +216,7 @@ The canonical public path is:
 /work/commerce-operations
 ```
 
-Examples:
+Domain routes include:
 
 ```text
 /work/commerce-operations/quotations
@@ -223,11 +229,13 @@ Same-zone navigation uses Next.js routing.
 
 Cross-zone navigation intentionally uses native document navigation because each domain belongs to a different Next.js zone.
 
-The public portfolio acts as the external gateway while the Commerce shell routes requests to the appropriate application.
+The domain boundaries are intentional: each zone can evolve and deploy independently while shared packages preserve a consistent product experience.
+
+The public portfolio acts as the external gateway while the Commerce Operations shell routes requests to the appropriate application.
 
 ## Data Layer
 
-The API uses:
+The Commerce API uses:
 
 - PostgreSQL
 - Supabase for production PostgreSQL
@@ -255,6 +263,8 @@ Important database constraints include:
 
 Identity allocation and quotation conversion use database-level coordination to remain safe under concurrent operations.
 
+Transactional service logic preserves consistency across related entities such as Orders and Payments.
+
 ## Tech Stack
 
 ### Frontend
@@ -269,12 +279,12 @@ Identity allocation and quotation conversion use database-level coordination to 
 - Next.js Multi-Zone
 - npm Workspaces
 - Turborepo
-- Shared UI packages
-- REST APIs
+- Shared UI and platform packages
 
 ### Backend and Persistence
 
 - Next.js Route Handlers
+- REST API
 - PostgreSQL
 - Supabase
 - Drizzle ORM
@@ -326,54 +336,20 @@ Example:
 DATABASE_URL=postgresql://USER:PASSWORD@HOST/DATABASE
 ```
 
-For local PostgreSQL, use the connection string for your local database.
+Use the connection string for your local PostgreSQL database.
 
-### Quotations
+### Frontend Applications
 
-Create:
-
-```text
-apps/quotations/.env.local
-```
-
-```env
-COMMERCE_API_ORIGIN=http://localhost:3003
-COMMERCE_PLATFORM_URL=http://localhost:3000/work/commerce-operations
-```
-
-### Orders
-
-Create:
+Create an `.env.local` file in:
 
 ```text
-apps/orders/.env.local
+apps/quotations
+apps/orders
+apps/customers
+apps/payments
 ```
 
-```env
-COMMERCE_API_ORIGIN=http://localhost:3003
-COMMERCE_PLATFORM_URL=http://localhost:3000/work/commerce-operations
-```
-
-### Customers
-
-Create:
-
-```text
-apps/customers/.env.local
-```
-
-```env
-COMMERCE_API_ORIGIN=http://localhost:3003
-COMMERCE_PLATFORM_URL=http://localhost:3000/work/commerce-operations
-```
-
-### Payments
-
-Create:
-
-```text
-apps/payments/.env.local
-```
+Each frontend application uses:
 
 ```env
 COMMERCE_API_ORIGIN=http://localhost:3003
@@ -400,7 +376,7 @@ npm run db:reset:verify --workspace=@commerce/api
 
 The seed is deterministic so automated workflows can rely on known application states.
 
-Do not run database reset commands against the production database.
+> Do not run database reset commands against the production database.
 
 ## Running the Project
 
@@ -414,6 +390,17 @@ Then open:
 
 ```text
 http://localhost:3000/work/commerce-operations
+```
+
+The local workspace starts the Commerce applications on:
+
+```text
+Shell          3000
+Quotations     3001
+Orders         3002
+Commerce API   3003
+Customers      3004
+Payments       3005
 ```
 
 ## Quality Checks
@@ -463,8 +450,9 @@ Unit tests focus on domain behavior and service orchestration, including:
 - Payment-gated fulfillment
 - Cancellation consistency
 - Payment transition rules
+- Quotation-to-order conversion
 
-Playwright covers the cross-domain workflow:
+Playwright covers the cross-domain quote-to-cash workflow:
 
 ```text
 Create quotation
@@ -484,36 +472,64 @@ The E2E suite also verifies important negative paths such as:
 - Processing an unpaid order
 - Cancelling an order with a paid payment
 - Paying a cancelled payment
+- Cross-zone navigation
+- Independent application routing
 
 ## Continuous Integration
 
-GitHub Actions runs against pull requests and updates to `main`.
+GitHub Actions runs on pull requests and updates to `main`.
 
 CI uses a disposable PostgreSQL 16 database and validates:
 
 ```text
 Database migration
-→ deterministic seed verification
-→ lint
-→ typecheck
-→ unit tests
-→ production build
+→ Deterministic seed verification
+→ Lint
+→ Typecheck
+→ Unit tests
+→ Production build
 ```
 
 A separate job runs the Playwright end-to-end suite.
 
-The `main` branch is protected and requires CI to pass before changes can be merged.
+The intended merge workflow is:
+
+```text
+Feature branch
+↓
+Pull request
+↓
+Quality + End-to-End checks
+↓
+Merge to main
+```
+
+`main` is intended to remain stable and deployable, with application changes validated through CI before merge.
 
 ## Deployment
 
 The applications are deployed independently on Vercel.
 
-Production compute is aligned with the Singapore region to reduce latency between the frontend applications, Commerce API, and production database.
+Production compute is aligned with the Singapore region to reduce latency between the frontend applications, Commerce API, and production PostgreSQL database.
 
 The public application is exposed through:
 
 ```text
 https://seibashonia.dev/work/commerce-operations
+```
+
+The public portfolio acts as the external routing gateway:
+
+```text
+seibashonia.dev
+↓
+Commerce Operations Shell
+↓
+Quotations / Orders / Customers / Payments
+↓
+Commerce API
+↓
+Supabase PostgreSQL
 ```
 
 Internal zone deployments remain independently deployable while users interact through one canonical public URL.
@@ -522,19 +538,21 @@ Internal zone deployments remain independently deployable while users interact t
 
 This project is intentionally more architecture-focused than feature-heavy.
 
-It was built to practice and demonstrate:
+It was built to demonstrate:
 
 - Designing frontend boundaries around business domains
 - Coordinating independently deployed applications
 - Modeling real operational state transitions
 - Enforcing business rules in both UI and backend layers
 - Using database transactions for cross-entity consistency
+- Designing idempotent business operations
+- Maintaining consistency across Order and Payment state
 - Designing deterministic automated tests
 - Building CI/CD quality gates
 - Reasoning about production latency and deployment topology
 
 ## Project Status
 
-Core quote-to-cash workflow complete.
+**Core quote-to-cash workflow complete.**
 
-The repository is maintained as a portfolio and engineering-learning project.
+This repository is maintained as a production-style portfolio project focused on frontend architecture, distributed application boundaries, transactional workflows, and engineering reliability.
